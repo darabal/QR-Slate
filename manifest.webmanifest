@@ -1,0 +1,15 @@
+{
+  "name": "QR Slate",
+  "short_name": "QR Slate",
+  "description": "On-set QR slate for VFX: episode, scene, setup, take and usage in a QR the sorter can read.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0f0e",
+  "theme_color": "#0d0f0e",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
