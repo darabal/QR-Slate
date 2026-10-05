@@ -7,7 +7,7 @@ This is the contract between the **QR Slate** app and the **sorter**. Both sides
 A QR code. Two formats exist:
 
 - **JSON** (all usages except hdri, and every correction / previous-take slate): one JSON object, UTF-8, error correction level Q, described below.
-- **Short text** (hdri only, see 1b): the slate ID only, so the code is the smallest QR there is and fisheye lenses can still read it.
+- **Short text** (hdri, see 1b, and witness_cam with the app's **360** switch on, see 1c): the slate ID only, so the code is the smallest QR there is and fisheye / 360 lenses can still read it.
 
 The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetectorAruco`); the basic OpenCV detector misses dense codes that stronger decoders read fine.
 
@@ -54,6 +54,24 @@ the smallest there is. Readers should also accept `_` instead of `-` and lower c
   writes `hdri/<setup>/1`, `hdri/<setup>/2`.
 - HDRI slates carry no note. Correction, previous-take and re-roll slates of an hdri stay JSON.
 - QR Slate 0.9.1 wrote `QS1|3_21B|<take>|hdri|<yymmddhhmmss>`; the sorter still reads it.
+
+### 1c. Short witness_cam QR (360 switch)
+
+```
+3-21B-T4      witness_cam, slate 3_21B, take 4
+3-21B-T4R2    take 4, roll 2 (false start, see `roll`)
+3-21B-T4P     previous-take slate for take 4 (see `previous_clip`)
+```
+
+`episode-scene+setup-T<take>[R<roll>|P]`, same character set, QR mode and error correction as 1b.
+Up to 10 characters is a 21×21 QR; longer IDs (e.g. `12-105AA-T12`) give 25×25.
+
+- Shown only when the operator turns on **360** on a witness_cam slate, so 360 / fisheye witness
+  cameras can read it. Every camera rolling on that take sees the same short code.
+- The `T` tells it apart from an hdri code, whose third part is a plain number.
+- Usage is always `witness_cam`. Camera, note, day, unit and time are not in the QR: camera from the
+  offload folder (or the day log), day and unit from the day log, time from the clip.
+- Correction slates stay JSON.
 
 ### Previous-take slates
 

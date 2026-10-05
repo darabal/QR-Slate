@@ -209,6 +209,7 @@ span.tk{cursor:default}
 .backcur.prevdone{background:var(--prev)}
 .prevrow{display:flex;justify-content:flex-end}
 .prevrow .ghost{padding:5px 10px;font-size:11px}
+.prevrow .ghost[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
 .qrwrap{position:relative;flex-direction:column;gap:6px;cursor:zoom-in}
 .bighint{display:none;font-family:var(--f-mono);font-size:12px;color:var(--mute)}
 #slate.bigqr{--qr:min(calc(var(--vw) - 28px),calc(var(--vh) - 60px))}
@@ -432,7 +433,7 @@ span.tk{cursor:default}
   </div>
   <button type="button" class="backcur" id="backCur" hidden>Back to current slate</button>
   <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
-  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
+  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="w360Btn" aria-pressed="false" aria-label="Small QR for 360 cameras">360</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
   <div class="deck">
     <button type="button" id="suDown"><span class="a">−</span><span class="l">Setup</span></button>
     <button type="button" id="suUp"><span class="a">+</span><span class="l">Setup</span></button>
@@ -456,7 +457,7 @@ span.tk{cursor:default}
 <script>
 (function(){
 "use strict";
-var APP_VERSION="0.9.2";   // major.minor.patch; 1.0 after the first real shooting day
+var APP_VERSION="0.10.0";   // major.minor.patch; 1.0 after the first real shooting day
 var NOTE_MAX=300;
 var MOTD=[
   "Somewhere a gaffer is already moving a light you just photographed. Slate anyway.",
@@ -973,6 +974,9 @@ function payload(v,t,c,pv){
   /* hdri: only the slate ID, e.g. 3-42A, plus the HDRI number (the take) when a setup has several: 3-42A-2.
      The smallest QR there is (21x21), so fisheye shots can still read it. Day and unit come from the day log. */
   if(v.use==="hdri"&&!c&&!pv&&!(v.roll>1))return (v.ep+"-"+v.sc+v.su+(v.tk!=null?"-"+v.tk:"")).toUpperCase();
+  /* witness_cam with the 360 switch on: the same kind of tiny code for 360 / fisheye cameras, e.g. 3-42A-T4.
+     T = take, then R2 for roll 2 (false start) or P for a previous-take slate. Camera, note, day and time come from the day log and the clip. */
+  if(v.use==="witness_cam"&&W360&&!c&&v.tk!=null)return (v.ep+"-"+v.sc+v.su+"-T"+v.tk+(pv?"P":v.roll>1?"R"+v.roll:"")).toUpperCase();
   var p={app:"qrslate",v:1,episode:v.ep,scene:v.sc};
   if(v.use!=="scene_ref")p.setup=v.su;
   if(v.tk!=null)p.take=v.tk;
@@ -1008,6 +1012,7 @@ function renderSlate(){
   $("prevBanner").hidden=!pv;$("prevDone").hidden=!pv;
   if(pv)$("prevDone").textContent="Done · next is T"+(pv.n+1);
   $("prevRow").hidden=!!c||!!pv||S.tk==null;
+  $("w360Btn").hidden=v.use!=="witness_cam";$("w360Btn").setAttribute("aria-pressed",W360?"true":"false");
   var takeText=c&&c.scope==="slate"?(c.all?"ALL":""):(v.tk!=null?String(v.tk):"");
   $("slate").classList.toggle("is-corr",!!c);
   $("slate").classList.toggle("has-take",!!takeText);
@@ -1041,6 +1046,10 @@ $("falseBtn").onclick=function(){
   toast("False start. Same take, roll "+S.roll+".")};
 $("prevBtn").onclick=function(){if(S.tk==null)return;shown=null;prev={n:S.tk,t:isoLocal(new Date())};renderSlate()};
 $("prevDone").onclick=function(){if(!prev)return;commitPrev();S.tk=prev.n+1;prev=null;stampCurrent();renderSlate()};
+/* 360: witness_cam slates switch to the small QR (like hdri) so 360 / fisheye cameras can read it. Stays on until switched off. */
+var W360=!!store.get("w360",false);
+$("w360Btn").onclick=function(){W360=!W360;store.set("w360",W360);renderSlate();
+  toast(W360?"360 on: small QR for 360 cameras.":"360 off: full QR.")};
 /* big QR: tap the code to fill the screen, tap again to go back */
 $("qrWrap").onclick=function(){$("slate").classList.toggle("bigqr");renderSlate()};
 /* in correction, any of the 4 buttons returns to the current slate and applies the step */
