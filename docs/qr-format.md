@@ -7,7 +7,7 @@ This is the contract between the **QR Slate** app and the **sorter**. Both sides
 A QR code. Two formats exist:
 
 - **JSON** (all usages except hdri, and every correction / previous-take slate): one JSON object, UTF-8, error correction level Q, described below.
-- **Short text** (hdri, see 1b, and witness_cam with the app's **360** switch on, see 1c): the slate ID only, so the code is the smallest QR there is and fisheye / 360 lenses can still read it.
+- **Short text** (hdri, see 1b, witness_cam with the app's **360** switch on, see 1c, and the sync clock, see 1d): the slate ID only, so the code is the smallest QR there is and fisheye / 360 lenses can still read it.
 
 The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetectorAruco`); the basic OpenCV detector misses dense codes that stronger decoders read fine.
 
@@ -72,6 +72,23 @@ Up to 10 characters is a 21×21 QR; longer IDs (e.g. `12-105AA-T12`) give 25×25
 - Usage is always `witness_cam`. Camera, note, day, unit and time are not in the QR: camera from the
   offload folder (or the day log), day and unit from the day log, time from the clip.
 - Correction slates stay JSON.
+
+### 1d. Sync QR (live clock)
+
+```
+SYNC-142605.120     the phone's local clock: 14:26:05.120
+```
+
+`SYNC-HHMMSS.mmm`, local time of day (same clock and time zone as the slate `time` values), alphanumeric
+mode, level H, 25×25. The app redraws it on every screen frame (about 60 times a second) while **Sync**
+is open on the slate screen.
+
+- Film it for a couple of seconds on each camera, any time in the day (ideally at the start, after
+  any timecode jam). One decoded frame pairs that clip's timecode (frame time) with the phone clock:
+  `offset = phone time − clip TC`. Use the median over the frames that decode.
+- With that offset, every slate `time` in the day log maps to a timecode on that camera, so takes
+  can be found from timecode alone (cameras whose QR can't be read in the footage, e.g. some RAW formats).
+- No date in the code: take it from the clip. A frame can land between two codes and fail to decode; skip it.
 
 ### Previous-take slates
 
