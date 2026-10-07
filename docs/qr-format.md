@@ -76,19 +76,21 @@ Up to 10 characters is a 21×21 QR; longer IDs (e.g. `12-105AA-T12`) give 25×25
 ### 1d. Sync QR (live clock)
 
 ```
-SYNC-142605.120     the phone's local clock: 14:26:05.120
+SYNC-142605.000     the phone's local clock: 14:26:05
 ```
 
-`SYNC-HHMMSS.mmm`, local time of day (same clock and time zone as the slate `time` values), alphanumeric
-mode, level H, 25×25. The app redraws it on every screen frame (about 60 times a second) while **Sync**
-is open on the slate screen.
+`SYNC-HHMMSS.000`, local time of day (same clock and time zone as the slate `time` values), alphanumeric
+mode, level H, 25×25. While **Sync** is open on the slate screen the code changes **once a second, exactly
+on the second** (the `.000` is always zero; 0.10.0 changed it every screen frame with real milliseconds,
+which camera shutters could not catch).
 
-- Film it for a couple of seconds on each camera, any time in the day (ideally at the start, after
-  any timecode jam). One decoded frame pairs that clip's timecode (frame time) with the phone clock:
-  `offset = phone time − clip TC`. Use the median over the frames that decode.
+- Film it for a few seconds on each camera, any time in the day (ideally at the start, after any
+  timecode jam). The **first frame** showing a new code is that whole second on the phone clock:
+  `offset = phone time − clip TC of that frame`, accurate to about one frame. Frames in the middle of a
+  second only say "within this second"; use a change frame when there is one.
 - With that offset, every slate `time` in the day log maps to a timecode on that camera, so takes
   can be found from timecode alone (cameras whose QR can't be read in the footage, e.g. some RAW formats).
-- No date in the code: take it from the clip. A frame can land between two codes and fail to decode; skip it.
+- No date in the code: take it from the clip. A frame caught mid-change can fail to decode; skip it.
 
 ### Previous-take slates
 

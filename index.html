@@ -429,7 +429,7 @@ span.tk{cursor:default}
   </div>
   <div class="corr-banner" id="corrBanner" hidden>CORRECTION<small id="corrText"></small></div>
   <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it.</small></div>
-  <div class="sync-banner" id="syncBanner" hidden>SYNC<small>Film this for 2 seconds on every camera. The QR is the phone's clock.</small></div>
+  <div class="sync-banner" id="syncBanner" hidden>SYNC<small>Film this for a few seconds on every camera. The QR is the phone's clock.</small></div>
   <div class="qrwrap" id="qrWrap" title="Tap for a full-screen QR"><canvas id="qr" width="1000" height="1000" aria-label="QR code. Tap to fill the screen."></canvas><span class="bighint">Tap to go back</span></div>
   <div class="readout">
     <div class="idrow">
@@ -470,7 +470,7 @@ span.tk{cursor:default}
 <script>
 (function(){
 "use strict";
-var APP_VERSION="0.10.0";   // major.minor.patch; 1.0 after the first real shooting day
+var APP_VERSION="0.10.1";   // major.minor.patch; 1.0 after the first real shooting day
 var NOTE_MAX=300;
 var MOTD=[
   "Somewhere a gaffer is already moving a light you just photographed. Slate anyway.",
@@ -1046,7 +1046,7 @@ function renderSlate(){
   $("suDown").disabled=!!pv||(!c&&(sr||!S.su));$("suUp").disabled=!!pv||(!c&&sr);
   $("tkDown").disabled=pv?pv.n<=1:(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null));
   $("slate").classList.toggle("is-sync",!!SYNC);$("syncBanner").hidden=$("syncTime").hidden=$("syncDone").hidden=!SYNC;
-  if(SYNC)syncFrame();else drawQR(payload(v,t,c,!!pv),!!c);tick();
+  if(SYNC)syncFrame(true);else drawQR(payload(v,t,c,!!pv),!!c);tick();
 }
 $("backCur").onclick=function(){shown=null;renderSlate()};
 /* "Slate previous take": a slate-only clip that labels the clip before it. Take -/+ pick the missed take; Done moves on. */
@@ -1060,14 +1060,16 @@ $("falseBtn").onclick=function(){
   toast("False start. Same take, roll "+S.roll+".")};
 $("prevBtn").onclick=function(){if(S.tk==null)return;shown=null;prev={n:S.tk,t:isoLocal(new Date())};renderSlate()};
 $("prevDone").onclick=function(){if(!prev)return;commitPrev();S.tk=prev.n+1;prev=null;stampCurrent();renderSlate()};
-/* Sync: the QR shows the phone's clock, redrawn every screen frame, e.g. SYNC-142605.120 (14:26:05.120).
+/* Sync: the QR shows the phone's clock and changes once a second, exactly on the second, e.g. SYNC-142605.000 (14:26:05).
+   A slow change lets every camera shutter catch a clean code; the first frame with a new code marks the second.
    Filmed once per camera, it pairs that camera's timecode with the phone clock, so slate times in the day log map to clips. */
-var SYNC=false,syncRAF=0;
-function syncText(d){return "SYNC-"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+"."+("00"+d.getMilliseconds()).slice(-3)}
-function syncFrame(){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hidden)return;
-  var d=new Date();drawQR(syncText(d),false);
-  $("syncTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+"."+("0"+Math.floor(d.getMilliseconds()/10)).slice(-2);
-  syncRAF=requestAnimationFrame(syncFrame)}
+var SYNC=false,syncRAF=0,syncShown="";
+function syncText(d){return "SYNC-"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+".000"}
+function syncFrame(force){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hidden)return;
+  var d=new Date(),txt=syncText(d);
+  if(force||txt!==syncShown){syncShown=txt;drawQR(txt,false);
+    $("syncTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
+  syncRAF=requestAnimationFrame(function(){syncFrame(false)})}
 $("syncBtn").onclick=function(){if(shown||prev)return;SYNC=true;renderSlate()};
 $("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);renderSlate()};
 /* 360: witness_cam slates switch to the small QR (like hdri) so 360 / fisheye cameras can read it. Stays on until switched off. */
