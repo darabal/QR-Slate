@@ -4,7 +4,7 @@ iPhone web app that shows a QR slate (episode, scene, setup, take, usage, camera
 photo and witness-camera slating on set, with a start-of-day page, slate history, corrections and
 a day log.
 
-Version **0.10.0**. The data inside the QR codes and the day log is described in
+Version **0.10.1**. The data inside the QR codes and the day log is described in
 [`docs/qr-format.md`](docs/qr-format.md), so any sorting tool can read it.
 
 ## Install on the iPhone
@@ -29,7 +29,7 @@ The app is a plain static site, so any HTTPS host works. With GitHub Pages:
 - **Takes:** `witness_cam` counts takes from 1. Photo usages (set_ref, hdri, photogrammetry, scene_ref, custom) start without a take: one slate per folder. Take + still adds one if needed.
 - **hdri:** no note, and the smallest possible QR (21×21): only the slate ID, e.g. `3-42A`. A second HDRI of the same setup: Take + gives `3-42A-1`, `3-42A-2`, and the sorter puts them in `hdri/3042A/1`, `hdri/3042A/2`. Day and unit come from the day log.
 - **360:** on a witness_cam slate, tap **360** to switch to a tiny QR (like hdri, e.g. `3-21B-T4`) that 360 and fisheye cameras can read. It stays on until tapped again. Camera, note and time then come from the day log and the clip.
-- **Sync:** on the slate screen, **Sync** shows a QR of the phone's clock that changes every frame (`SYNC-142605.120`) and the time in big digits. Film it for 2 seconds on each camera; the sorter uses it to line up camera timecode with the slate times. **Done** goes back to the slate.
+- **Sync:** on the slate screen, **Sync** shows a QR of the phone's clock that changes once a second, on the second (`SYNC-142605.000`), and the time in big digits. Film it for a few seconds on each camera; the sorter uses it to line up camera timecode with the slate times. **Done** goes back to the slate.
 - **Big QR:** tap the QR to fill the whole screen; tap again to go back.
 - **False start:** the take was cut and rolls again on the same number. Tap **False start**: the slate stays on the same take and shows **ROLL 2** (QR `roll: 2`); film it at the start of the new roll.
 - **New-day check:** if a day is still open, the date has changed **and** the last slate is more than 6 hours old, the app asks *New day* or *Same day*. New day wraps the old day and opens the start page with the day number +1 (same block, same unit).
