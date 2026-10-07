@@ -207,8 +207,19 @@ span.tk{cursor:default}
 .prev-banner{background:var(--prev);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
 .prev-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px}
 .backcur.prevdone{background:var(--prev)}
+/* sync: a live clock QR, filmed once per camera to line camera timecode up with the phone clock */
+#slate.is-sync{border:8px solid var(--accent);padding-inline:8px}
+.sync-banner{background:var(--accent);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
+.sync-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px}
+.synctime{font-family:var(--f-mono);font-size:min(11vw,52px);font-weight:600;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.backcur.syncdone{background:var(--accent)}
+#slate.is-sync .readout,#slate.is-sync .deck,#slate.is-sync .prevrow,#slate.is-sync .corr-banner,#slate.is-sync .prev-banner,#slate.is-sync #backCur,#slate.is-sync #prevDone{display:none!important}
+#slate.rot .sync-banner{grid-column:2;grid-row:2}
+#slate.rot .synctime{grid-column:2;grid-row:3;align-self:center;font-size:min(40px,calc((var(--vh) - var(--vw)) * .13))}
+#slate.rot .syncdone{grid-column:2;grid-row:4}
 .prevrow{display:flex;justify-content:flex-end}
 .prevrow .ghost{padding:5px 10px;font-size:11px}
+.prevrow .ghost[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
 .qrwrap{position:relative;flex-direction:column;gap:6px;cursor:zoom-in}
 .bighint{display:none;font-family:var(--f-mono);font-size:12px;color:var(--mute)}
 #slate.bigqr{--qr:min(calc(var(--vw) - 28px),calc(var(--vh) - 60px))}
@@ -418,6 +429,7 @@ span.tk{cursor:default}
   </div>
   <div class="corr-banner" id="corrBanner" hidden>CORRECTION<small id="corrText"></small></div>
   <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it.</small></div>
+  <div class="sync-banner" id="syncBanner" hidden>SYNC<small>Film this for 2 seconds on every camera. The QR is the phone's clock.</small></div>
   <div class="qrwrap" id="qrWrap" title="Tap for a full-screen QR"><canvas id="qr" width="1000" height="1000" aria-label="QR code. Tap to fill the screen."></canvas><span class="bighint">Tap to go back</span></div>
   <div class="readout">
     <div class="idrow">
@@ -432,7 +444,9 @@ span.tk{cursor:default}
   </div>
   <button type="button" class="backcur" id="backCur" hidden>Back to current slate</button>
   <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
-  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
+  <div class="synctime" id="syncTime" hidden></div>
+  <button type="button" class="backcur syncdone" id="syncDone" hidden>Done</button>
+  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="syncBtn">Sync</button><button type="button" class="ghost" id="w360Btn" aria-pressed="false" aria-label="Small QR for 360 cameras">360</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
   <div class="deck">
     <button type="button" id="suDown"><span class="a">−</span><span class="l">Setup</span></button>
     <button type="button" id="suUp"><span class="a">+</span><span class="l">Setup</span></button>
@@ -456,7 +470,7 @@ span.tk{cursor:default}
 <script>
 (function(){
 "use strict";
-var APP_VERSION="0.9.2";   // major.minor.patch; 1.0 after the first real shooting day
+var APP_VERSION="0.10.0";   // major.minor.patch; 1.0 after the first real shooting day
 var NOTE_MAX=300;
 var MOTD=[
   "Somewhere a gaffer is already moving a light you just photographed. Slate anyway.",
@@ -576,7 +590,7 @@ function trim(){if(H.length>200){H.sort(function(a,b){return a.last<b.last?-1:1}
 /* ---------- screens ---------- */
 function show(name){["start","form","history","daylog","slate"].forEach(function(n){$(n).hidden=n!==name});
   if(name!=="form"){noteEdit=false;pending=null;$("conflict").hidden=true;$("make").hidden=false}
-  if(name!=="slate"){if(prev){commitPrev();prev=null}$("slate").classList.remove("bigqr")}
+  if(name!=="slate"){if(prev){commitPrev();prev=null}SYNC=false;$("slate").classList.remove("bigqr","is-sync")}
   if(name==="slate")wake();else release();window.scrollTo(0,0)}
 function goForm(){fillForm(S,S.tk);show("form")}
 function goHome(){if(!DI)openStart("new");else goForm()}
@@ -973,6 +987,9 @@ function payload(v,t,c,pv){
   /* hdri: only the slate ID, e.g. 3-42A, plus the HDRI number (the take) when a setup has several: 3-42A-2.
      The smallest QR there is (21x21), so fisheye shots can still read it. Day and unit come from the day log. */
   if(v.use==="hdri"&&!c&&!pv&&!(v.roll>1))return (v.ep+"-"+v.sc+v.su+(v.tk!=null?"-"+v.tk:"")).toUpperCase();
+  /* witness_cam with the 360 switch on: the same kind of tiny code for 360 / fisheye cameras, e.g. 3-42A-T4.
+     T = take, then R2 for roll 2 (false start) or P for a previous-take slate. Camera, note, day and time come from the day log and the clip. */
+  if(v.use==="witness_cam"&&W360&&!c&&v.tk!=null)return (v.ep+"-"+v.sc+v.su+"-T"+v.tk+(pv?"P":v.roll>1?"R"+v.roll:"")).toUpperCase();
   var p={app:"qrslate",v:1,episode:v.ep,scene:v.sc};
   if(v.use!=="scene_ref")p.setup=v.su;
   if(v.tk!=null)p.take=v.tk;
@@ -993,8 +1010,8 @@ function drawQR(text,corr){
   ctx.clearRect(0,0,W,W);
   if(typeof qrcode!=="function"){ctx.fillStyle="#f6f6f2";ctx.fillRect(0,0,W,W);ctx.fillStyle="#b00";ctx.font="28px sans-serif";ctx.fillText("QR library didn't load.",40,280);return}
   if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
-  /* short hdri codes (digits, capitals, "-") use the QR's compact alphanumeric mode and the strongest error correction */
-  var short=/^[0-9A-Z-]{1,20}$/.test(text);
+  /* short codes (hdri, 360 witness, sync: digits, capitals, "-", ".") use the QR's compact alphanumeric mode and the strongest error correction */
+  var short=/^[0-9A-Z.-]{1,20}$/.test(text);
   var q=qrcode(0,short?"H":"Q");q.addData(text,short?"Alphanumeric":"Byte");q.make();
   var band=0;                              // correction is shown by the orange screen border, not inside the QR
   var inner=W-band*2,n=q.getModuleCount(),quiet=4,cell=Math.floor(inner/(n+quiet*2)),off=band+Math.floor((inner-cell*n)/2);
@@ -1007,7 +1024,8 @@ function renderSlate(){
   $("slate").classList.toggle("is-prev",!!pv);
   $("prevBanner").hidden=!pv;$("prevDone").hidden=!pv;
   if(pv)$("prevDone").textContent="Done · next is T"+(pv.n+1);
-  $("prevRow").hidden=!!c||!!pv||S.tk==null;
+  $("prevRow").hidden=!!c||!!pv;$("falseBtn").hidden=$("prevBtn").hidden=S.tk==null;
+  $("w360Btn").hidden=v.use!=="witness_cam";$("w360Btn").setAttribute("aria-pressed",W360?"true":"false");
   var takeText=c&&c.scope==="slate"?(c.all?"ALL":""):(v.tk!=null?String(v.tk):"");
   $("slate").classList.toggle("is-corr",!!c);
   $("slate").classList.toggle("has-take",!!takeText);
@@ -1027,7 +1045,8 @@ function renderSlate(){
   var sr=S.use==="scene_ref",wit=S.use==="witness_cam";
   $("suDown").disabled=!!pv||(!c&&(sr||!S.su));$("suUp").disabled=!!pv||(!c&&sr);
   $("tkDown").disabled=pv?pv.n<=1:(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null));
-  drawQR(payload(v,t,c,!!pv),!!c);tick();
+  $("slate").classList.toggle("is-sync",!!SYNC);$("syncBanner").hidden=$("syncTime").hidden=$("syncDone").hidden=!SYNC;
+  if(SYNC)syncFrame();else drawQR(payload(v,t,c,!!pv),!!c);tick();
 }
 $("backCur").onclick=function(){shown=null;renderSlate()};
 /* "Slate previous take": a slate-only clip that labels the clip before it. Take -/+ pick the missed take; Done moves on. */
@@ -1041,6 +1060,20 @@ $("falseBtn").onclick=function(){
   toast("False start. Same take, roll "+S.roll+".")};
 $("prevBtn").onclick=function(){if(S.tk==null)return;shown=null;prev={n:S.tk,t:isoLocal(new Date())};renderSlate()};
 $("prevDone").onclick=function(){if(!prev)return;commitPrev();S.tk=prev.n+1;prev=null;stampCurrent();renderSlate()};
+/* Sync: the QR shows the phone's clock, redrawn every screen frame, e.g. SYNC-142605.120 (14:26:05.120).
+   Filmed once per camera, it pairs that camera's timecode with the phone clock, so slate times in the day log map to clips. */
+var SYNC=false,syncRAF=0;
+function syncText(d){return "SYNC-"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+"."+("00"+d.getMilliseconds()).slice(-3)}
+function syncFrame(){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hidden)return;
+  var d=new Date();drawQR(syncText(d),false);
+  $("syncTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+"."+("0"+Math.floor(d.getMilliseconds()/10)).slice(-2);
+  syncRAF=requestAnimationFrame(syncFrame)}
+$("syncBtn").onclick=function(){if(shown||prev)return;SYNC=true;renderSlate()};
+$("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);renderSlate()};
+/* 360: witness_cam slates switch to the small QR (like hdri) so 360 / fisheye cameras can read it. Stays on until switched off. */
+var W360=!!store.get("w360",false);
+$("w360Btn").onclick=function(){W360=!W360;store.set("w360",W360);renderSlate();
+  toast(W360?"360 on: small QR for 360 cameras.":"360 off: full QR.")};
 /* big QR: tap the code to fill the screen, tap again to go back */
 $("qrWrap").onclick=function(){$("slate").classList.toggle("bigqr");renderSlate()};
 /* in correction, any of the 4 buttons returns to the current slate and applies the step */
