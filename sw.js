@@ -1,5 +1,5 @@
 /* QR Slate offline cache. Bump VERSION whenever any app file changes so phones pick up the update. */
-const VERSION = "qrslate-0.10.1";
+const VERSION = "qrslate-0.11.0";
 const APP = ["./", "index.html", "manifest.webmanifest", "vendor/qrcode.js",
              "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"];
 
