@@ -446,7 +446,7 @@ span.tk{cursor:default}
   <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
   <div class="synctime" id="syncTime" hidden></div>
   <button type="button" class="backcur syncdone" id="syncDone" hidden>Done</button>
-  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="syncBtn">Sync</button><button type="button" class="ghost" id="w360Btn" aria-pressed="false" aria-label="Small QR for 360 cameras">360</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
+  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="syncBtn">Sync</button><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
   <div class="deck">
     <button type="button" id="suDown"><span class="a">−</span><span class="l">Setup</span></button>
     <button type="button" id="suUp"><span class="a">+</span><span class="l">Setup</span></button>
@@ -470,7 +470,7 @@ span.tk{cursor:default}
 <script>
 (function(){
 "use strict";
-var APP_VERSION="0.10.1";   // major.minor.patch; 1.0 after the first real shooting day
+var APP_VERSION="0.11.0";   // major.minor.patch; 1.0 after the first real shooting day
 var NOTE_MAX=300;
 var MOTD=[
   "Somewhere a gaffer is already moving a light you just photographed. Slate anyway.",
@@ -816,7 +816,7 @@ function reportRow(s){
   var first=s.takes.length?s.takes[0].t:s.last;
   var nb=numbered(s);
   var h='<span class="t">'+hm(first)+'</span><span class="m"><b>'+esc(slateId(s))+'</b><span class="u">'+esc(rowLabel(s))+'</span></span>';
-  if(nb.length)h+='<span class="x">takes '+nb.map(function(k){return k.tk+(k.rolls>1?" ("+k.rolls+" rolls)":"")+(k.after?" (slated after)":"")}).join(", ")+'</span>';
+  if(nb.length)h+='<span class="x">takes '+nb.map(function(k){return k.tk+(k.rolls>1?" ("+k.rolls+" rolls)":"")+(k.reh?" (rehearsal)":"")+(k.after?" (slated after)":"")}).join(", ")+'</span>';
   if(s.note)h+='<span class="x n">✎ '+esc(s.note)+'</span>';
   if(s.was)h+='<span class="x w">was '+esc(s.was)+'</span>';
   nb.forEach(function(k){if(k.note||k.was)h+='<span class="x'+(k.was?' w':' n')+'">T'+k.tk+': '+esc((k.note||"")+(k.was?(k.note?" · ":"")+"was "+k.was:""))+'</span>'});
@@ -934,7 +934,7 @@ function dayJSON(d){
   var o={app:"qrslate-daylog",v:1,app_version:APP_VERSION};if(d.day)o.day=d.day;if(d.unit)o.unit=d.unit;o.start=d.start;o.wrap=d.end;
   o.slates=sorted(d.slates).reverse().map(function(s){var o={id:slateId(s),episode:s.ep,scene:s.sc};
       if(s.use!=="scene_ref")o.setup=s.su;o.usage=s.use;if(s.obj)o.object=s.obj;if(s.cam)o.camera=s.cam;if(s.note)o.note=s.note;if(s.was)o.was=s.was;
-      o.takes=s.takes.map(function(k){var t={};if(k.tk!=null)t.take=k.tk;t.time=k.t;if(k.cam)t.camera=k.cam;if(k.after)t.slated_after=true;if(k.rolls>1)t.rolls=k.rolls;if(k.note)t.note=k.note;if(k.was)t.was=k.was;return t});return o});
+      o.takes=s.takes.map(function(k){var t={};if(k.tk!=null)t.take=k.tk;t.time=k.t;if(k.cam)t.camera=k.cam;if(k.after)t.slated_after=true;if(k.rolls>1)t.rolls=k.rolls;if(k.reh)t.rehearsals=k.reh;if(k.note)t.note=k.note;if(k.was)t.was=k.was;return t});return o});
   return o;
 }
 function dayText(d){
@@ -944,7 +944,7 @@ function dayText(d){
     L.push(slateId(s)+"  "+useLabel(s));
     if(s.was)L.push("   was "+s.was);
     if(s.note)L.push("   note: "+s.note);
-    s.takes.forEach(function(k){L.push("   "+(k.tk!=null?"T"+pad(k.tk):"slate")+"  "+(k.t||"").slice(11,19)+(k.cam?"  ["+k.cam+"]":"")+(k.rolls>1?"  ("+k.rolls+" rolls, last is the real take)":"")+(k.after?"  (slated after, separate clip)":"")+(k.note?"  "+k.note:"")+(k.was?"  (was "+k.was+")":""))});
+    s.takes.forEach(function(k){L.push("   "+(k.tk!=null?"T"+pad(k.tk):"slate")+"  "+(k.t||"").slice(11,19)+(k.cam?"  ["+k.cam+"]":"")+(k.rolls>1?"  ("+k.rolls+" rolls, last is the real take)":"")+(k.reh?"  ("+k.reh+" rehearsal"+(k.reh>1?"s":"")+")":"")+(k.after?"  (slated after, separate clip)":"")+(k.note?"  "+k.note:"")+(k.was?"  (was "+k.was+")":""))});
     L.push("");
   });
   return L.join("\n");
@@ -974,7 +974,7 @@ function copyFallback(txt,json){
 
 /* ---------- slate ---------- */
 function stampCurrent(){
-  S.t=isoLocal(new Date());
+  S.t=isoLocal(new Date());S.reh=false;
   if(!DI)DI={day:"",unit:"",start:S.t};
   var isNew=!findSlate(keyOf(S)),s=ensureSlate(S);
   if(isNew)s.note=S.note||"";else{S.note=s.note||"";if(!s.cam&&S.cam)s.cam=S.cam}
@@ -987,9 +987,9 @@ function payload(v,t,c,pv){
   /* hdri: only the slate ID, e.g. 3-42A, plus the HDRI number (the take) when a setup has several: 3-42A-2.
      The smallest QR there is (21x21), so fisheye shots can still read it. Day and unit come from the day log. */
   if(v.use==="hdri"&&!c&&!pv&&!(v.roll>1))return (v.ep+"-"+v.sc+v.su+(v.tk!=null?"-"+v.tk:"")).toUpperCase();
-  /* witness_cam with the 360 switch on: the same kind of tiny code for 360 / fisheye cameras, e.g. 3-42A-T4.
-     T = take, then R2 for roll 2 (false start) or P for a previous-take slate. Camera, note, day and time come from the day log and the clip. */
-  if(v.use==="witness_cam"&&W360&&!c&&v.tk!=null)return (v.ep+"-"+v.sc+v.su+"-T"+v.tk+(pv?"P":v.roll>1?"R"+v.roll:"")).toUpperCase();
+  /* witness_cam: 15 digits, the smallest QR there is (21x21) with the strongest error correction, so 360 / fisheye cameras read it.
+     Falls back to the JSON QR when a value doesn't fit the fixed fields. */
+  if(v.use==="witness_cam"&&!c){var wd=witnessDigits(v,pv);if(wd)return wd}
   var p={app:"qrslate",v:1,episode:v.ep,scene:v.sc};
   if(v.use!=="scene_ref")p.setup=v.su;
   if(v.tk!=null)p.take=v.tk;
@@ -1002,6 +1002,15 @@ function payload(v,t,c,pv){
   if(pv)p.previous_clip=true;   // this clip is only a slate; it labels the clip before it
   return JSON.stringify(p);
 }
+/* witness digit code, fixed width, no separators (see docs/qr-format.md 1c):
+   DDD day · EE episode · SSS scene · s scene letter · UU setup · TT take · R roll · F flag
+   flag: 0 normal, 1 previous-take slate, 2 rehearsal, 3-9 reserved */
+function witnessDigits(v,pv){
+  var dm=(DI&&DI.day||"").match(/\d+/),day=dm?+dm[0]:0,
+      sm=/^(\d{1,3})([A-Z]?)$/.exec(v.sc||""),sl=sm&&sm[2]?L.indexOf(sm[2])+1:0,su=suToN(v.su||""),roll=pv?1:(v.roll||1);
+  if(day>999||!/^\d{1,2}$/.test(v.ep||"")||!sm||(sm[2]&&sl<1)||sl>9||su<0||su>99||v.tk==null||v.tk<1||v.tk>99||roll>9)return null;
+  return pad(day,3)+pad(+v.ep,2)+pad(+sm[1],3)+sl+pad(su,2)+pad(v.tk,2)+roll+(pv?1:v.reh?2:0);
+}
 function drawQR(text,corr){
   /* draw at the exact on-screen pixel size so every module is a whole number of pixels (crisp, never resampled) */
   var c=$("qr"),css=c.getBoundingClientRect().width,px=Math.round(css*(window.devicePixelRatio||1));
@@ -1010,9 +1019,10 @@ function drawQR(text,corr){
   ctx.clearRect(0,0,W,W);
   if(typeof qrcode!=="function"){ctx.fillStyle="#f6f6f2";ctx.fillRect(0,0,W,W);ctx.fillStyle="#b00";ctx.font="28px sans-serif";ctx.fillText("QR library didn't load.",40,280);return}
   if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
-  /* short codes (hdri, 360 witness, sync: digits, capitals, "-", ".") use the QR's compact alphanumeric mode and the strongest error correction */
-  var short=/^[0-9A-Z.-]{1,20}$/.test(text);
-  var q=qrcode(0,short?"H":"Q");q.addData(text,short?"Alphanumeric":"Byte");q.make();
+  /* short codes use the QR's compact modes and the strongest error correction:
+     digits only (witness) numeric mode; hdri / sync (digits, capitals, "-", ".") alphanumeric mode */
+  var num=/^\d{1,40}$/.test(text),short=num||/^[0-9A-Z.-]{1,20}$/.test(text);
+  var q=qrcode(0,short?"H":"Q");q.addData(text,num?"Numeric":short?"Alphanumeric":"Byte");q.make();
   var band=0;                              // correction is shown by the orange screen border, not inside the QR
   var inner=W-band*2,n=q.getModuleCount(),quiet=4,cell=Math.floor(inner/(n+quiet*2)),off=band+Math.floor((inner-cell*n)/2);
   ctx.fillStyle="#f6f6f2";ctx.fillRect(band,band,inner,inner);ctx.fillStyle="#000";
@@ -1025,7 +1035,7 @@ function renderSlate(){
   $("prevBanner").hidden=!pv;$("prevDone").hidden=!pv;
   if(pv)$("prevDone").textContent="Done · next is T"+(pv.n+1);
   $("prevRow").hidden=!!c||!!pv;$("falseBtn").hidden=$("prevBtn").hidden=S.tk==null;
-  $("w360Btn").hidden=v.use!=="witness_cam";$("w360Btn").setAttribute("aria-pressed",W360?"true":"false");
+  $("rehBtn").hidden=v.use!=="witness_cam"||S.tk==null;$("rehBtn").setAttribute("aria-pressed",S.reh?"true":"false");
   var takeText=c&&c.scope==="slate"?(c.all?"ALL":""):(v.tk!=null?String(v.tk):"");
   $("slate").classList.toggle("is-corr",!!c);
   $("slate").classList.toggle("has-take",!!takeText);
@@ -1034,7 +1044,8 @@ function renderSlate(){
   if(c)$("corrText").textContent="WAS "+c.wasLabel;
   $("bigId").textContent=slateId(v);
   $("bigTake").textContent=takeText;
-  var rl=!c&&!pv&&v.roll>1;$("bigRoll").hidden=!rl;if(rl)$("bigRoll").textContent="ROLL "+v.roll;
+  var rl=!c&&!pv&&v.roll>1,rh=!c&&!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
+  $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
   $("bigUse").innerHTML=esc(v.use.replace(/_/g," "))+(v.obj?' · <span class="obj">'+esc(v.obj)+'</span>':'');
   var sub=[];if(v.cam)sub.push('<span class="cam">'+esc(v.cam)+'</span>');
   $("bigSub").innerHTML=sub.join(" · ");$("bigSub").hidden=!sub.length;
@@ -1072,10 +1083,12 @@ function syncFrame(force){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hid
   syncRAF=requestAnimationFrame(function(){syncFrame(false)})}
 $("syncBtn").onclick=function(){if(shown||prev)return;SYNC=true;renderSlate()};
 $("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);renderSlate()};
-/* 360: witness_cam slates switch to the small QR (like hdri) so 360 / fisheye cameras can read it. Stays on until switched off. */
-var W360=!!store.get("w360",false);
-$("w360Btn").onclick=function(){W360=!W360;store.set("w360",W360);renderSlate();
-  toast(W360?"360 on: small QR for 360 cameras.":"360 off: full QR.")};
+/* Rehearsal: the next clip on this take is a rehearsal (witness QR flag 2). Counted on the take in the day log; ends on the next step. */
+$("rehBtn").onclick=function(){
+  if(S.tk==null||shown||prev)return;
+  S.reh=!S.reh;
+  if(S.reh){var s=ensureSlate(S),k=takeOf(s,S.tk)||putTake(s,S.tk,isoLocal(new Date()));k.reh=(k.reh||0)+1;save()}
+  renderSlate();toast(S.reh?"Rehearsal. Same take, flagged as rehearsal.":"Rehearsal off.")};
 /* big QR: tap the code to fill the screen, tap again to go back */
 $("qrWrap").onclick=function(){$("slate").classList.toggle("bigqr");renderSlate()};
 /* in correction, any of the 4 buttons returns to the current slate and applies the step */

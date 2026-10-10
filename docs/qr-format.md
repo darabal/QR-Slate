@@ -7,7 +7,7 @@ This is the contract between the **QR Slate** app and the **sorter**. Both sides
 A QR code. Two formats exist:
 
 - **JSON** (all usages except hdri, and every correction / previous-take slate): one JSON object, UTF-8, error correction level Q, described below.
-- **Short text** (hdri, see 1b, witness_cam with the app's **360** switch on, see 1c, and the sync clock, see 1d): the slate ID only, so the code is the smallest QR there is and fisheye / 360 lenses can still read it.
+- **Short text** (hdri, see 1b, the witness_cam digit code, see 1c, and the sync clock, see 1d): the slate ID only, so the code is the smallest QR there is and fisheye / 360 lenses can still read it.
 
 The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetectorAruco`); the basic OpenCV detector misses dense codes that stronger decoders read fine.
 
@@ -55,23 +55,35 @@ the smallest there is. Readers should also accept `_` instead of `-` and lower c
 - HDRI slates carry no note. Correction, previous-take and re-roll slates of an hdri stay JSON.
 - QR Slate 0.9.1 wrote `QS1|3_21B|<take>|hdri|<yymmddhhmmss>`; the sorter still reads it.
 
-### 1c. Short witness_cam QR (360 switch)
+### 1c. Witness digit QR (witness_cam, since 0.11)
 
 ```
-3-21B-T4      witness_cam, slate 3_21B, take 4
-3-21B-T4R2    take 4, roll 2 (false start, see `roll`)
-3-21B-T4P     previous-take slate for take 4 (see `previous_clip`)
+112030211020410
 ```
 
-`episode-scene+setup-T<take>[R<roll>|P]`, same character set, QR mode and error correction as 1b.
-Up to 10 characters is a 21×21 QR; longer IDs (e.g. `12-105AA-T12`) give 25×25.
+Every witness_cam slate (except correction slates) is **15 digits** in fixed-width fields, no separators.
+QR numeric mode, error correction level H: always a 21×21 QR (version 1), so 360 / fisheye cameras read it.
 
-- Shown only when the operator turns on **360** on a witness_cam slate, so 360 / fisheye witness
-  cameras can read it. Every camera rolling on that take sees the same short code.
-- The `T` tells it apart from an hdri code, whose third part is a plain number.
-- Usage is always `witness_cam`. Camera, note, day, unit and time are not in the QR: camera from the
-  offload folder (or the day log), day and unit from the day log, time from the clip.
-- Correction slates stay JSON.
+| Digits | Field | Values |
+|---|---|---|
+| 1–3 | `DDD` day | first number in the day field (`D112_B3` → `112`); `000` if none |
+| 4–5 | `EE` episode | `00`–`99` |
+| 6–8 | `SSS` scene number | `000`–`999` |
+| 9 | `s` scene letter | `0` none, `1`–`9` = A B C D E F G H J (movie alphabet, no I) |
+| 10–11 | `UU` setup | `00` none, `01` A … `24` Z, `25` AA … (no I or O), up to `99` |
+| 12–13 | `TT` take | `01`–`99` |
+| 14 | `R` roll | `1`–`9` (false start: roll 2+ of the same take, the last is the real take) |
+| 15 | `F` flag | `0` normal, `1` previous-take slate (see `previous_clip`), `2` rehearsal, `3`–`9` reserved |
+
+Example above: day 112, episode 3, scene 21A, setup B, take 4, roll 1, normal → slate `3_21AB` take 4.
+
+- Usage is always `witness_cam`. Camera, note, unit and time are not in the QR: camera from the offload
+  folder (or the day log), unit from the day log, time from the clip.
+- If a value doesn't fit (episode with letters or over 99, scene over 999 or with a letter after J,
+  setup past 99, take over 99, roll over 9, day over 999), that slate falls back to the JSON QR.
+- A code is exactly 15 digits; the hdri and sync codes always contain a letter or `-`, so they can't be confused.
+- **Rehearsal** (flag `2`): the clip is a rehearsal of that take, not the take. The day log counts them per take (`rehearsals`).
+- QR Slate 0.10.x had a 360 switch with `3-21B-T4` / `3-21B-T4R2` / `3-21B-T4P` codes; readers should still accept them.
 
 ### 1d. Sync QR (live clock)
 
@@ -145,7 +157,8 @@ Since 0.9 a slate is identified by episode + scene + setup + usage (+ object). T
         {"take": 1, "time": "2026-09-29T11:42:10+02:00"},          // photo slates without a take: {"time": ...} only
         {"take": 2, "time": "2026-09-29T11:47:31+02:00", "note": "Late start", "was": "3_21A T2 set_ref"},
         {"take": 3, "time": "2026-09-29T11:52:02+02:00", "camera": "insta360_B", "slated_after": true},
-        {"take": 4, "time": "2026-09-29T11:58:40+02:00", "rolls": 2}       // false start: 2 clips for T4, the last is real
+        {"take": 4, "time": "2026-09-29T11:58:40+02:00", "rolls": 2},      // false start: 2 clips for T4, the last is real
+        {"take": 5, "time": "2026-09-29T12:03:12+02:00", "rehearsals": 1}  // 1 rehearsal clip before T5 (witness flag 2)
       ]
     }
   ]
