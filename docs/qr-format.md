@@ -6,8 +6,11 @@ This is the contract between the **QR Slate** app and the **sorter**. Both sides
 
 A QR code. Two formats exist:
 
-- **JSON** (all usages except hdri, and every correction / previous-take slate): one JSON object, UTF-8, error correction level Q, described below.
-- **Short text** (hdri, see 1b, the witness_cam digit code, see 1c, and the sync clock, see 1d): the slate ID only, so the code is the smallest QR there is and fisheye / 360 lenses can still read it.
+- **Slate code** (17 digits, see 1c): hdri and witness_cam always, set_ref while it has no note.
+  The smallest QR there is, so fisheye / 360 lenses and far cameras can still read it.
+- **JSON** (photogrammetry, custom usages, set_ref with a note, every correction slate, and any slate whose
+  values don't fit the slate code): one JSON object, UTF-8, error correction level Q, described below.
+- The **sync clock** (see 1d) is its own short code.
 
 The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetectorAruco`); the basic OpenCV detector misses dense codes that stronger decoders read fine.
 
@@ -15,75 +18,66 @@ The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetector
 |---|---|---|---|
 | `app` | `"qrslate"` | yes | Marks this QR as ours. Ignore QR codes without it. |
 | `v` | `1` | yes | Format version. |
-| `episode` | string | yes | e.g. `"3"` |
-| `scene` | string | yes | e.g. `"21"` (upper-case if it has letters) |
+| `episode` | string | yes | e.g. `"3"`. May be `""` since 1.0 (episode is optional). |
+| `scene` | string | yes | e.g. `"21"`. Since 1.0 it may start with a scene marker: `X` (second unit), `A`/`B`/`C` (a connected scene) or `XA`/`XB`/`XC`, e.g. `"A38"`. |
 | `setup` | string | no | `""`, `"A"` … `"Z"`, `"AA"` … Movie alphabet: no `I`, no `O`. Omitted for `scene_ref`. |
 | `take` | integer | no | `witness_cam` counts takes from 1. For every other usage the take is optional: **no `take` = one slate for the whole folder/setup**. Also omitted on a whole-slate correction. |
-| `usage` | string | yes | `set_ref`, `hdri`, `photogrammetry`, `scene_ref`, `witness_cam`, or a custom value. Lower-case, `a-z0-9_`. |
+| `usage` | string | yes | `set_ref`, `hdri`, `photogrammetry`, `witness_cam`, or a custom value. Lower-case, `a-z0-9_`. (`scene_ref` left the app in 1.0; old slates may still carry it.) |
 | `object` | string | no | Only with `photogrammetry`: the scanned object, e.g. `hero_chair`. |
-| `camera` | string | no | Camera name, e.g. `witness`, `blackmagic_A`, `insta360_B`. `A-Za-z0-9_-`. Often a general name on set, fixed later in the day log. |
-| `day` | string | no | Shooting day / block as typed on the start page, e.g. `D12_B3`. Free text; only the sorter interprets it. |
-| `unit` | string | no | `main`, `second`, `splinter`, `vfx` or a custom value. |
-| `id` | string | yes | Readable slate ID: `episode_scene+setup`, e.g. `3_21B`. |
+| `camera` | string | no | Camera name. The form no longer asks for it since 1.0; older slates may carry it. |
+| `day` | string | no | Shooting day as one code since 1.0: `B01D56` = block 1, day 56. Either part may be missing (`D56`, `B02`). 1.0 test builds wrote a plain number and a separate `block`; before that free text like `D12_B3`. |
+| `unit` | string | no | `main`, `second`, `splinter`, `vfx`, `other` or a custom value. |
+| `id` | string | yes | Readable slate ID: `episode_scene+setup`, e.g. `3_21B`; without an episode just `A38A`. |
 | `time` | string | yes | ISO 8601 local time with offset when the slate was shown, e.g. `2026-09-29T11:42:10+02:00`. |
-| `note` | string | no | Slate note, max 300 characters. Carries over through the takes; per-take remarks are written inside it, e.g. `T1: boom in shot · T2: good`. (v5 also had `take_note`; old QR codes may still carry it.) |
+| `note` | string | no | Slate note, max 300 characters. Only set_ref, photogrammetry and custom usages take a note. |
 | `correction` | object | no | Present only on a correction slate. See below. |
-| `roll` | integer | no | **False start:** the take was cut and rolled again. `roll: 2` (or 3…) = this is a re-roll of the same take; the last roll is the real take. Absent = roll 1. |
+| `roll` | integer | no | **Roll again** (was "False start" in the app): the take was cut and rolled again. `roll: 2` (or 3…) = this is a re-roll of the same take; the last roll is the real take. Absent = roll 1. |
+| `rehearsal` | `true` | no | The clip is a rehearsal of that take, not the take. |
 | `previous_clip` | `true` | no | **Slate-only clip:** the clip that contains this QR is only a slate. It labels the clip **before** it with this slate and take. See below. |
 
 Example:
 
 ```json
-{"app":"qrslate","v":1,"episode":"3","scene":"21","setup":"B","take":2,"usage":"set_ref","camera":"witness","id":"3_21B","time":"2026-09-29T11:42:10+02:00","note":"Rain rig on"}
+{"app":"qrslate","v":1,"episode":"3","scene":"A38","setup":"B","take":2,"usage":"set_ref","day":"B01D56","unit":"main","id":"3_A38B","time":"2026-10-13T11:42:10+02:00","note":"Rain rig on"}
 ```
 
-### 1b. Short hdri QR
+### 1b. Short hdri QR (until 0.11)
+
+`3-21B` / `3-21B-2` (`episode-scene+setup[-number]`). Since 1.0 hdri slates use the slate code (1c).
+Readers should still accept these, and the 0.9.1 form `QS1|3_21B|<take>|hdri|<yymmddhhmmss>`.
+
+### 1c. Slate code (17 digits)
 
 ```
-3-21B        one HDRI for setup 3_21B
-3-21B-2      HDRI number 2 of that setup (the slate's take)
+03203801042628610
 ```
 
-`episode-scene+setup[-number]`, upper case, only `0-9`, `A-Z` and `-`. The app draws it in the QR
-alphanumeric mode with error correction level H: up to 10 characters is a 21×21 QR (version 1),
-the smallest there is. Readers should also accept `_` instead of `-` and lower case.
-
-- Usage is always `hdri`. Day, unit, camera and time are not in the QR: the sorter takes day and
-  unit from the day log (or from the other slates of the day) and the time from the photo.
-- The number is the slate's take. No number = one HDRI for the setup; with numbers the sorter
-  writes `hdri/<setup>/1`, `hdri/<setup>/2`.
-- HDRI slates carry no note. Correction, previous-take and re-roll slates of an hdri stay JSON.
-- QR Slate 0.9.1 wrote `QS1|3_21B|<take>|hdri|<yymmddhhmmss>`; the sorter still reads it.
-
-### 1c. Witness digit QR (witness_cam, since 0.11)
-
-```
-112030211020410
-```
-
-Every witness_cam slate (except correction slates) is **15 digits** in fixed-width fields, no separators.
-QR numeric mode, error correction level H: always a 21×21 QR (version 1), so 360 / fisheye cameras read it.
+**17 digits** in fixed-width fields, no separators. QR numeric mode, error correction level H:
+always a 21×21 QR (version 1, which holds exactly 17 digits).
 
 | Digits | Field | Values |
 |---|---|---|
-| 1–3 | `DDD` day | first number in the day field (`D112_B3` → `112`); `000` if none |
-| 4–5 | `EE` episode | `00`–`99` |
-| 6–8 | `SSS` scene number | `000`–`999` |
-| 9 | `s` scene letter | `0` none, `1`–`9` = A B C D E F G H J (movie alphabet, no I) |
-| 10–11 | `UU` setup | `00` none, `01` A … `24` Z, `25` AA … (no I or O), up to `99` |
-| 12–13 | `TT` take | `01`–`99` |
-| 14 | `R` roll | `1`–`9` (false start: roll 2+ of the same take, the last is the real take) |
-| 15 | `F` flag | `0` normal, `1` previous-take slate (see `previous_clip`), `2` rehearsal, `3`–`9` reserved |
+| 1–2 | `EE` episode | `00` none, `01`–`99` |
+| 3 | `M` scene marker | `0` none, `1` X, `2` A, `3` B, `4` C, `5` XA, `6` XB, `7` XC (`8`, `9` reserved) |
+| 4–6 | `SSS` scene number | `000`–`999` |
+| 7–8 | `UU` setup | `00` none, `01` A … `24` Z, `25` AA … `96` CZ (movie alphabet, no I or O) |
+| 9–10 | `TT` take | `00` no take, `01`–`99` |
+| 11–15 | `YYDDD` date | year (2 digits) and day of the year `001`–`366`, phone date when the slate was shown |
+| 16 | `N` unit | `0` not set, `1` main, `2` second, `3` splinter, `4` vfx, `5` other |
+| 17 | `F` flag | `0` normal, `1` previous-take slate (see `previous_clip`), `2` rehearsal, `3` roll again (the same take rolled again after a cut; this clip is the real take), `4`–`9` reserved |
 
-Example above: day 112, episode 3, scene 21A, setup B, take 4, roll 1, normal → slate `3_21AB` take 4.
+Example above: episode 3, scene A38, setup A, take 4, 13 Oct 2026 (day 286), main unit, normal → slate `3_A38A` take 4.
+The scene marker is part of the scene: `A38` is the scene the sorter files as `1038A_A` for episode 1, setup A.
 
-- Usage is always `witness_cam`. Camera, note, unit and time are not in the QR: camera from the offload
-  folder (or the day log), unit from the day log, time from the clip.
-- If a value doesn't fit (episode with letters or over 99, scene over 999 or with a letter after J,
-  setup past 99, take over 99, roll over 9, day over 999), that slate falls back to the JSON QR.
-- A code is exactly 15 digits; the hdri and sync codes always contain a letter or `-`, so they can't be confused.
-- **Rehearsal** (flag `2`): the clip is a rehearsal of that take, not the take. The day log counts them per take (`rehearsals`).
-- QR Slate 0.10.x had a 360 switch with `3-21B-T4` / `3-21B-T4R2` / `3-21B-T4P` codes; readers should still accept them.
+- The usage is not in the code: hdri, witness_cam and set_ref without a note all show it. Take the usage
+  from the offload folder / camera. Block and shooting-day number aren't in it either; the date is.
+- If a value doesn't fit (episode with letters or over 99, a scene in another shape, setup past CZ,
+  take over 99), that slate shows the JSON QR instead.
+- Older digit codes are **witness_cam only** and readers should still accept them:
+  1.0 test builds wrote `DDD B N EE SSS s UU TT R F` (17 digits, starts with the day) and 0.11 wrote 15 digits
+  (`DDD EE SSS s UU TT R F`); 0.10 had `3-21B-T4` / `3-21B-T4R2` / `3-21B-T4P` codes.
+  Tell them apart by the QR Slate version of the day, or by the date field: a slate code always has a valid
+  `YYDDD` at digits 11–15 close to the clip date.
 
 ### 1d. Sync QR (live clock)
 
@@ -100,7 +94,7 @@ which camera shutters could not catch).
   timecode jam). The **first frame** showing a new code is that whole second on the phone clock:
   `offset = phone time − clip TC of that frame`, accurate to about one frame. Frames in the middle of a
   second only say "within this second"; use a change frame when there is one.
-- With that offset, every slate `time` in the day log maps to a timecode on that camera, so takes
+- With that offset, every slate `time` (or a QR's place in the footage) maps to a timecode on that camera, so takes
   can be found from timecode alone (cameras whose QR can't be read in the footage, e.g. some RAW formats).
 - No date in the code: take it from the clip. A frame caught mid-change can fail to decode; skip it.
 
@@ -111,7 +105,7 @@ Used when a take was shot without a slate. The operator records a separate short
 - the clip with this QR is **only a slate** → `_SLATES`;
 - the clip **directly before it** (same camera, by time / clip number) gets this slate's ID and `take`.
 
-The day log marks such takes with `"slated_after": true`.
+In the slate code it is flag `1`. Up to 0.11 the day log marked such takes with `"slated_after": true`.
 
 ### Correction slates
 
@@ -135,7 +129,9 @@ A correction slate says: *everything that was slated as `was` is really what thi
 - The correction slate itself is not a take. The sorter puts its files in `_SLATES`.
 - Priority when slates disagree: **correction slate (shot later) > tail slate > head slate**.
 
-## 2. Day log
+## 2. Day log (removed in 1.0)
+
+QR Slate 1.0 has no day log: everything the sorter reads is in the QR codes. Older versions shared one at wrap, described below, and readers may still get those files.
 
 Shared at wrap as `daylog_<date>_wrap-<HHMM>.json` (and a readable `.txt`). This is the phone's final, corrected view of the day. Edits in Slates that don't need a new slate (camera name, notes) appear only here.
 

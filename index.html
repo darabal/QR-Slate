@@ -26,11 +26,12 @@
   --line:#2a2f2d;
   --ink:#eef1ee;
   --mute:#8a938f;
+  --ink2:#c3cac6;          /* field labels: brighter than mute so they read on set */
   --chalk:#f6f6f2;        /* QR paper */
   --accent:#d9e021;       /* marker yellow, as on slate tape */
   --corr:#ff6a2b;         /* correction */
   --corr-dim:#5a3322;
-  --prev:#3aa0ff;          /* previous-take slate */
+  --prev:#ff4422;          /* previous-take slate: orange-red top bar */
   --danger:#ff5a5a;
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -54,10 +55,17 @@ button{cursor:pointer}
 .head h1{font-size:30px}
 .head h1 span{color:var(--accent)}
 .head h2{font-size:28px}
-.head .r{display:flex;gap:6px}
+.head .r{display:flex;gap:6px;align-items:center}
 .head .lft{display:flex;align-items:center;gap:10px;min-width:0}
 .iconbtn{width:38px;height:34px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
 .iconbtn svg{width:20px;height:20px}
+/* slate row: scene = marker dropdown + number; marker and setup are compact dropdowns */
+.slategrid{display:grid;grid-template-columns:58px minmax(0,1fr) 68px 58px;gap:8px}
+/* scene: the marker box (X, A, XA…) only shows once added; the Scene label always sits over the number */
+.scrow{display:flex;gap:4px;min-width:0}
+.scrow .mkf{flex:0 0 68px}.scrow .field:last-child{flex:1 1 auto}
+.field select.tight{font-size:26px;padding:10px 18px 10px 8px;background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%}
+.grid3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 .grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 #form{gap:16px;padding-block:14px 0;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
 .formfoot{margin-top:auto;position:sticky;bottom:0;background:var(--ground);display:flex;flex-direction:column;gap:12px;padding-block:10px 16px;z-index:3}
@@ -72,9 +80,6 @@ button{cursor:pointer}
 /* ---------- START ---------- */
 .ver{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:var(--mute);margin-top:2px}
 .today{font-family:var(--f-mono);font-size:13px;color:var(--mute)}
-.motd{border-top:3px solid var(--accent);padding-top:16px;display:flex;flex-direction:column;gap:10px}
-.motd .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
-.motd p{margin:0;font-family:var(--f-display);font-size:clamp(28px,8vw,38px);font-weight:600;line-height:1.08;text-wrap:balance}
 .skip{align-self:center;background:none;border:0;padding:6px;color:var(--mute);font-size:14px;text-decoration:underline}
 
 /* ---------- FORM ---------- */
@@ -88,7 +93,7 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px
 legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:10px;padding:0}
 .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .field{display:flex;flex-direction:column;gap:6px;min-width:0}
-.field label{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
+.field label{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);display:flex;justify-content:space-between;gap:8px}
 .field input,.field select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 10px;font-family:var(--f-display);font-size:26px;font-weight:600;letter-spacing:.02em;min-width:0}
 .field input.small{font-size:22px}
 .field textarea{width:100%;min-height:64px;resize:vertical;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:16px;line-height:1.4}
@@ -97,9 +102,17 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .field input::placeholder,.field textarea::placeholder{color:#4a514e}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none}
 .count{font-variant-numeric:tabular-nums}
+.addnote{align-self:flex-start}
+.addmk{font-size:12px;padding:6px 12px;letter-spacing:.06em}
+.notewarn{border:1px solid var(--corr);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+.notewarn p{margin:0;font-size:14px;line-height:1.45}
+.notewarn .btns{display:flex;gap:8px}.notewarn .act{flex:1}
 .count.full{color:var(--corr)}
-.preview{font-family:var(--f-mono);font-size:13px;color:var(--mute);overflow-wrap:anywhere}
-.preview b{color:var(--ink);font-weight:600}
+.slatelegend{display:flex;align-items:baseline;gap:8px;min-width:0;font-size:13px;color:var(--ink2)}
+.slatelegend .sep{color:var(--mute)}
+/* the slate as it will read: plain text, not a field; about 10% bigger than the field values */
+.preview{font-family:var(--f-display);font-weight:700;font-size:29px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.preview .ptk{color:var(--accent)}
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
 .primary.corr{background:var(--corr)}
@@ -167,15 +180,15 @@ span.tk{cursor:default}
 
 /* ---------- SLATE ---------- */
 #slate{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-inline:14px;gap:6px;border:0 solid var(--corr);
-  --qr:min(90vw,40vh); --id:min(22vw,12vh)}
-@media (max-height:720px){#slate{--qr:min(92vw,47vh);--id:min(20vw,9.5vh)} #slate.has-take{--id:min(17vw,9vh)} #slate .stamp{display:none}}
+  --qr:min(calc(100vw - 28px),50vh); --id:min(22vw,12vh)}
+@media (max-height:720px){#slate{--qr:min(calc(100vw - 28px),47vh);--id:min(20vw,9.5vh)} #slate.has-take{--id:min(17vw,9vh)}}
 #slate.has-take{--id:min(18vw,11vh)}
 #slate.is-corr{border-width:8px;padding-inline:8px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .topbar .l{display:flex;align-items:center;gap:10px;min-width:0}
 .clock{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.clock .d{font-size:11px;color:var(--mute)}
-.clock .t{font-size:20px;font-weight:600}
+.clock .d{font-size:15px;color:var(--mute);letter-spacing:.02em}
+.clock .t{font-size:32px;font-weight:600;line-height:1.05}
 .corr-banner{background:var(--corr);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
 .corr-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px;overflow-wrap:anywhere}
 .qrwrap{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
@@ -187,8 +200,9 @@ span.tk{cursor:default}
 .bigid,.bigtake{font-family:var(--f-display);font-weight:700;font-size:var(--id);line-height:1;letter-spacing:.01em;font-variant-numeric:tabular-nums;white-space:nowrap;padding-bottom:.06em}
 .bigtake{color:var(--accent)}
 .divider{width:2px;align-self:stretch;background:var(--line);margin-block:14px 6px}
-.usage{font-family:var(--f-display);font-size:calc(var(--id) * .5);line-height:1;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);overflow-wrap:anywhere;margin-top:2px}
+.usage{font-family:var(--f-display);font-size:calc(var(--id) * .5);line-height:1;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);overflow-wrap:normal;margin-top:2px}
 .usage .obj{color:var(--ink)}
+.usage .nw{white-space:nowrap}
 .sub{font-family:var(--f-mono);font-size:13px;color:var(--mute);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sub .cam{color:var(--ink)}
 .notebtn{display:inline-flex;align-items:center;gap:8px;max-width:100%;min-width:0;background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-family:var(--f-mono);font-size:13px;color:var(--ink)}
@@ -202,8 +216,19 @@ span.tk{cursor:default}
 .conflict .what b{font-family:var(--f-display);font-size:19px;letter-spacing:.03em}
 .conflict .what i{color:var(--mute)}
 .conflict .act{font-size:16px;padding:12px 4px;letter-spacing:.04em;line-height:1.1}
-.stamp{font-family:var(--f-mono);font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
-#slate.is-prev{border:8px solid var(--prev);padding-inline:8px}
+.stamp{font-family:var(--f-mono);font-size:15px;letter-spacing:.06em;color:var(--mute);font-variant-numeric:tabular-nums}
+/* previous take: no border (keeps the layout); the orange-red top bar marks it, and Done takes the place of the 4 buttons */
+/* nothing changes size in previous-take mode: hidden parts keep their space, Done covers the 4 buttons */
+#slate.is-prev .prev-banner{display:none!important}
+#slate.is-prev .prevrow,#slate.is-prev .notebtn,#slate.is-prev .deck > button:not(#prevDone){visibility:hidden}
+.deck{position:relative}
+.deck #prevDone{position:absolute;left:0;right:0;top:0;bottom:8px;width:auto;justify-content:center}
+#slate.rot .deck #prevDone{bottom:0}
+#slate.is-prev .topbar{background:var(--prev);color:#111;box-shadow:0 8px 0 var(--prev);border-radius:0 0 10px 10px}
+#slate.is-prev:not(.rot) .topbar{margin:calc(-1 * env(safe-area-inset-top,0px)) -14px 0;padding-top:calc(6px + env(safe-area-inset-top,0px));padding-inline:14px}
+#slate.is-prev .topbar .ghost{color:#111;border-color:rgba(0,0,0,.4)}
+#slate.is-prev .clock .d{color:#111;opacity:.75}
+#slate.is-prev #prevDone{font-size:24px}
 .prev-banner{background:var(--prev);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
 .prev-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px}
 .backcur.prevdone{background:var(--prev)}
@@ -229,7 +254,9 @@ span.tk{cursor:default}
 #slate.rot.bigqr .qrwrap{grid-column:1 / -1;grid-row:1 / -1}
 .tk.after{border-style:dashed;border-color:var(--prev)}
 .tk[data-r]::after{content:attr(data-r);position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-mono);font-size:10px;font-weight:600;line-height:16px;text-align:center;padding:0 3px}
-.roll{display:inline-block;margin-top:2px;background:var(--accent);color:#111;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em;padding:2px 6px;border-radius:4px}
+/* ROLL 2 / REH sits beside the TAKE label, out of the flow, so the slate never moves */
+.cell .k{position:relative}
+.roll{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:6px;white-space:nowrap;line-height:1.2;background:var(--accent);color:#111;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em;padding:2px 6px;border-radius:4px}
 .prevrow{gap:6px}
 #slate:not([hidden]) ~ .toast{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
@@ -264,40 +291,9 @@ span.tk{cursor:default}
 </head>
 <body>
 
-<!-- ============ START ============ -->
-<section id="start" class="page" hidden aria-label="Start the day">
-  <div class="head"><div><h1>QR <span>Slate</span></h1><div class="ver" id="stVer"></div></div><span class="today" id="stDate"></span></div>
-  <div class="motd"><span class="lbl">Message of the day</span><p id="motd"></p></div>
-  <fieldset>
-    <legend id="stLegend">Today</legend>
-    <div class="field">
-      <label for="dayLbl">Shooting day / block</label>
-      <input id="dayLbl" class="small" placeholder="e.g. D12_B3" autocapitalize="characters">
-    </div>
-    <div class="field">
-      <label for="unit">Unit</label>
-      <select id="unit">
-        <option value="main">Main unit</option>
-        <option value="second">Second unit</option>
-        <option value="splinter">Splinter unit</option>
-        <option value="vfx">VFX unit</option>
-        <option value="__custom">Custom…</option>
-      </select>
-    </div>
-    <div class="field" id="unitCustomWrap" hidden>
-      <label for="unitCustom">Custom unit</label>
-      <input id="unitCustom" class="small" placeholder="e.g. drone" autocapitalize="none">
-    </div>
-    <p class="hint">Day and unit go into every QR and into the day log.</p>
-  </fieldset>
-  <button type="button" class="primary" id="stGo">Start day</button>
-  <button type="button" class="skip" id="stSkip">Skip for now</button>
-</section>
-
 <!-- ============ FORM ============ -->
 <form id="form" class="page" autocomplete="off" novalidate hidden>
-  <div class="head"><div class="lft"><button type="button" class="ghost iconbtn homebtn" aria-label="Home: start page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button><h1>QR <span>Slate</span></h1></div><div class="r"><button type="button" class="ghost" id="formLog">Day log</button><button type="button" class="ghost" id="formHist">Slates</button></div></div>
-  <div class="dayline" id="dayLine"></div>
+  <div class="head"><div class="lft"><h1>QR <span>Slate</span></h1></div><div class="r"><span class="ver" id="stVer"></span><button type="button" class="ghost" id="formHist" hidden>Slates</button><button type="button" class="ghost" id="formSync">Sync</button></div></div>
 
   <div class="fixing notebar" id="noteBar" hidden>
     <div class="t"><strong>Edit note</strong><span id="noteBarWhat"></span></div>
@@ -310,33 +306,42 @@ span.tk{cursor:default}
   </div>
 
   <fieldset>
-    <legend>Slate</legend>
-    <div class="grid4">
-      <div class="field"><label for="ep">Episode</label><input id="ep" inputmode="numeric" placeholder="3"></div>
-      <div class="field"><label for="sc">Scene</label><input id="sc" inputmode="text" placeholder="21"></div>
-      <div class="field"><label for="su">Setup</label><input id="su" placeholder="—" autocapitalize="characters" maxlength="3"></div>
-      <div class="field" id="tkWrap"><label for="tk">Take</label><input id="tk" inputmode="numeric" placeholder="—"></div>
+    <legend>Shooting day</legend>
+    <div class="grid3">
+      <div class="field"><label for="dayc">Block · day</label><input id="dayc" placeholder="B01D56" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="8"></div>
+      <div class="field"><label for="unit">Unit</label>
+        <select id="unit">
+          <option value="main">Main</option>
+          <option value="second">Second</option>
+          <option value="splinter">Splinter</option>
+          <option value="vfx">VFX</option>
+          <option value="other">Other</option>
+          <option value="">—</option>
+        </select></div>
     </div>
-    <div class="preview" id="formPreview">Slate <b>—</b></div>
   </fieldset>
 
   <fieldset>
-    <div class="grid2">
+    <legend class="slatelegend">Slate<span class="sep" aria-hidden="true">·</span><span class="preview" id="formPreview" aria-live="polite"></span></legend>
+    <div class="slategrid">
+      <div class="field"><label for="ep">Ep</label><input id="ep" inputmode="numeric" placeholder="3"></div>
+      <div class="scrow"><div class="field mkf" id="mkWrap" hidden><label for="mk">Mark</label><select id="mk" class="tight" aria-label="Scene marker"><option value="">—</option><option>X</option><option>A</option><option>B</option><option>C</option><option>XA</option><option>XB</option><option>XC</option></select></div><div class="field"><label for="sc">Scene</label><input id="sc" inputmode="numeric" placeholder="21" maxlength="3"></div></div>
+      <div class="field"><label for="su">Setup</label><select id="su" class="tight"></select></div>
+      <div class="field" id="tkWrap"><label for="tk">Take</label><input id="tk" inputmode="numeric" placeholder="—"></div>
+    </div>
+    <button type="button" class="ghost addnote addmk" id="addMk" aria-label="Add a scene marker (X, A, B, C)">Add marker</button>
+  </fieldset>
+
+  <fieldset>
     <div class="field">
       <label for="use">Usage</label>
       <select id="use">
         <option value="set_ref">set_ref</option>
         <option value="hdri">hdri</option>
         <option value="photogrammetry">photogrammetry</option>
-        <option value="scene_ref">scene_ref — whole scene</option>
-        <option value="witness_cam">witness_cam — video</option>
+        <option value="witness_cam">witness</option>
         <option value="__custom">custom…</option>
       </select>
-    </div>
-    <div class="field">
-      <label for="cam">Camera</label>
-      <input id="cam" class="small" placeholder="witness" autocapitalize="none">
-    </div>
     </div>
     <div class="field" id="customWrap" hidden>
       <label for="custom">Custom usage</label>
@@ -345,6 +350,11 @@ span.tk{cursor:default}
     <div class="field" id="objWrap" hidden>
       <label for="obj">Scanned object</label>
       <input id="obj" class="small" placeholder="e.g. hero_chair" autocapitalize="none">
+    </div>
+    <button type="button" class="ghost addnote" id="addNote">+ Add note</button>
+    <div class="notewarn" id="noteWarn" hidden role="alert">
+      <p id="noteWarnTx">A note makes the QR denser, so its squares get smaller and it reads less well from far away.</p>
+      <div class="btns"><button type="button" class="act go" id="noteYes">Add note</button><button type="button" class="act" id="noteNo">Cancel</button></div>
     </div>
     <div class="field" id="noteWrap">
       <label for="note"><span>Note</span><span class="count" id="count">0/300</span></label>
@@ -368,8 +378,8 @@ span.tk{cursor:default}
 
 <!-- ============ HISTORY ============ -->
 <section id="history" class="page" hidden aria-label="Slates">
-  <div class="head"><div class="lft"><button type="button" class="ghost iconbtn homebtn" aria-label="Home: start page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button><h2>Slates</h2></div><div class="r"><button type="button" class="ghost" id="histLog">Day log</button><button type="button" class="ghost" id="histBack">Back</button></div></div>
-  <p class="hint">Today's slates. Tap a slate to select it, or tap a take circle to select just that take.</p>
+  <div class="head"><div class="lft"><h2>Slates</h2></div><div class="r"><button type="button" class="ghost" id="histBack">Back</button></div></div>
+  <p class="hint">Recent slates, newest first. Tap a slate to select it, or tap a take circle to select just that take.</p>
   <div class="hist" id="hist"></div>
   <div class="actions" id="actions" hidden>
     <div class="inner">
@@ -387,55 +397,23 @@ span.tk{cursor:default}
   </div>
 </section>
 
-<!-- ============ DAY LOG ============ -->
-<section id="daylog" class="page" hidden aria-label="Day log">
-  <div class="head"><div class="lft"><button type="button" class="ghost iconbtn homebtn" aria-label="Home: start page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button><h2 id="dlTitle">Day log</h2></div><div class="r"><button type="button" class="ghost" id="dlBack">Back</button></div></div>
-  <div class="sumcard">
-    <div class="info" id="dlDayInfo"></div>
-    <div class="lbl" id="dlRange"></div>
-    <div class="stats" id="dlStats"></div>
-  </div>
-  <div class="btns two" id="dlOpenBtns">
-    <button type="button" class="act" id="dlSendOpen">Send</button>
-    <button type="button" class="act go" id="dlWrap">Wrap</button>
-  </div>
-  <div class="btns two" id="dlWrapConfirm" hidden>
-    <button type="button" class="act" id="dlWrapNo">Cancel</button>
-    <button type="button" class="act go" id="dlWrapYes">Wrap day</button>
-  </div>
-  <p class="hint" id="dlWrapHint" hidden>Wrapping closes today's log. Next time you open the app you start a new day. The wrapped day stays on this phone and you can send it anytime.</p>
-  <div class="btns two" id="dlPastBtns" hidden>
-    <button type="button" class="act del" id="dlDel">Delete</button>
-    <button type="button" class="act go" id="dlSendPast">Send</button>
-  </div>
-  <div class="btns two" id="dlDelConfirm" hidden>
-    <button type="button" class="act" id="dlDelNo">Cancel</button>
-    <button type="button" class="act delsure" id="dlDelYes">Delete day</button>
-  </div>
-  <p class="hint" id="dlDelHint" hidden>Deleting removes this day log from the phone. This can't be undone.</p>
-  <p class="hint" id="dlEditHint">This is a read-only report. To change a slate, open <button type="button" class="linkish" id="dlToSlates">Slates</button>.</p>
-  <div class="report" id="dlList"></div>
-  <div class="sec" id="dlPastLbl">Wrapped days</div>
-  <div class="daylist" id="dlPast"></div>
-</section>
-
 <!-- ============ SLATE ============ -->
 <section id="slate" hidden aria-label="Slate">
   <div class="topbar">
-    <div class="l"><button type="button" class="ghost iconbtn homebtn" aria-label="Home: start page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button><button class="ghost iconbtn rotbtn" id="rotBtn" type="button" aria-label="Turn the slate sideways" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
+    <div class="l"><button class="ghost iconbtn rotbtn" id="rotBtn" type="button" aria-label="Turn the slate sideways" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
       <div class="clock"><span class="d" id="cDate"></span><span class="t" id="cTime"></span></div>
     </div>
-    <div class="head"><div class="r"><button class="ghost" id="slateHist" type="button">Slates</button><button class="ghost" id="editBtn" type="button" aria-label="New slate: back to the form">New</button></div></div>
+    <div class="head"><div class="r"><button class="ghost" id="slateHist" type="button" hidden>Slates</button><button class="ghost" id="syncBtn" type="button">Sync</button><button class="ghost" id="editBtn" type="button" aria-label="Back to the slate form">Slate</button></div></div>
   </div>
   <div class="corr-banner" id="corrBanner" hidden>CORRECTION<small id="corrText"></small></div>
-  <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it.</small></div>
+  <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it, take shown below.</small></div>
   <div class="sync-banner" id="syncBanner" hidden>SYNC<small>Film this for a few seconds on every camera. The QR is the phone's clock.</small></div>
   <div class="qrwrap" id="qrWrap" title="Tap for a full-screen QR"><canvas id="qr" width="1000" height="1000" aria-label="QR code. Tap to fill the screen."></canvas><span class="bighint">Tap to go back</span></div>
   <div class="readout">
     <div class="idrow">
       <div class="cell"><span class="k">Slate</span><span class="bigid" id="bigId"></span></div>
       <span class="divider" id="takeDiv" aria-hidden="true"></span>
-      <div class="cell" id="takeCell"><span class="k">Take</span><span class="bigtake" id="bigTake"></span><span class="roll" id="bigRoll" hidden></span></div>
+      <div class="cell" id="takeCell"><span class="k">Take<span class="roll" id="bigRoll" hidden></span></span><span class="bigtake" id="bigTake"></span></div>
     </div>
     <div class="usage" id="bigUse"></div>
     <div class="sub" id="bigSub"></div>
@@ -443,68 +421,29 @@ span.tk{cursor:default}
     <div class="stamp" id="stamp"></div>
   </div>
   <button type="button" class="backcur" id="backCur" hidden>Back to current slate</button>
-  <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
   <div class="synctime" id="syncTime" hidden></div>
   <button type="button" class="backcur syncdone" id="syncDone" hidden>Done</button>
-  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="syncBtn">Sync</button><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
+  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">Roll again</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
   <div class="deck">
     <button type="button" id="suDown"><span class="a">−</span><span class="l">Setup</span></button>
     <button type="button" id="suUp"><span class="a">+</span><span class="l">Setup</span></button>
     <button type="button" id="tkDown"><span class="a">−</span><span class="l">Take</span></button>
     <button type="button" id="tkUp"><span class="a">+</span><span class="l">Take</span></button>
+    <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
   </div>
 </section>
 
-<div class="modal" id="newDay" hidden role="dialog" aria-modal="true" aria-labelledby="ndTitle">
-  <div class="box">
-    <h3 id="ndTitle">Is this a new day?</h3>
-    <p id="ndText"></p>
-    <div class="btns two">
-      <button type="button" class="act" id="ndSame">Same day</button>
-      <button type="button" class="act go" id="ndNew">New day</button>
-    </div>
-  </div>
-</div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
 (function(){
 "use strict";
-var APP_VERSION="0.11.0";   // major.minor.patch; 1.0 after the first real shooting day
+var APP_VERSION="1.0.0";   // major.minor.patch
 var NOTE_MAX=300;
-var MOTD=[
-  "Somewhere a gaffer is already moving a light you just photographed. Slate anyway.",
-  "Today's forecast: 80% chance of “one more take”, 100% chance you've got it covered.",
-  "HDRI tip: the sun doesn't care about the call sheet. Neither do clouds. Breathe.",
-  "Somebody has to remember what the set looked like at 3 pm. Congratulations, it's you.",
-  "Coffee first. Chrome ball second. Everything else after.",
-  "The best data is the data nobody has to reconstruct in post. You're the hero here.",
-  "If anyone asks what you're doing, say “calibrating”. Nobody ever asks a follow-up.",
-  "Grips are strong. So is your will to get that grey card in frame.",
-  "Hydrate like it's a 14-hour day. Because it probably is.",
-  "“We'll fix it in post.” Post is you. Future you says thank you.",
-  "The AD said five minutes. Plan for twenty. Smile anyway.",
-  "You're the only person on set who knows what that witness camera is for. Own it.",
-  "Your notebook knows things the script supervisor doesn't. Treat it kindly.",
-  "Somewhere in a dark room, a compositor will whisper your name with gratitude.",
-  "May your batteries be full and your cards be empty.",
-  "Clouds moving fast? Good news: your HDRI is now art.",
-  "Craft service is a state of mind. Also a table. Find the table.",
-  "A slate a day keeps “which setup was this?” away.",
-  "Every take is a gift. Some gifts are just take 14.",
-  "Photogrammetry mood: walk slowly around your problems and capture them from every angle.",
-  "Be kind to the camera department. They carry heavy things and heavier opinions.",
-  "You can't control the weather, the schedule or the director. You can control your file names.",
-  "If it moved, reshoot. If it didn't move, it will after you leave.",
-  "Today's goal: zero files in _UNSORTED.",
-  "If the day feels long, remember: wrap is a real place and we're going there.",
-  "Today's mantra: they can repaint the wall, but they can't repaint your reference photos.",
-  "Nobody notices great set data. Everybody notices missing set data. Be invisible today.",
-  "That last setup after lunch? It's always the one VFX needs most.",
-  "Wishing you good light, clean plates and at least one “moving on” before dinner.",
-  "Today's dragons, explosions and impossible cities all start with your reference photos."
-];
-var UNITS={main:"Main unit",second:"Second unit",splinter:"Splinter unit",vfx:"VFX unit"};
+var UNITS={main:"Main unit",second:"Second unit",splinter:"Splinter unit",vfx:"VFX unit",other:"Other unit"};
+var UNIT_DIGIT={main:1,second:2,splinter:3,vfx:4,other:5};   // slate code unit digit; 0 = none
+var MARKS=["","X","A","B","C","XA","XB","XC"];        // scene marker before the number: X second unit, A/B/C connected scene
+var SETUP_MAX=96;                                      // CZ
 
 /* ---- setup letters: movie alphabet, no I / O. bijective base-24: ""=0, A=1 … Z=24, AA=25 ---- */
 var L="ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -524,18 +463,23 @@ function clean(s){return strip(s).toLowerCase().trim().replace(/[^a-z0-9]+/g,"_"
 function camClean(s){return strip(s).trim().replace(/[^A-Za-z0-9-]+/g,"_").replace(/^_+|_+$/g,"")}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var PRESETS=["set_ref","hdri","photogrammetry","scene_ref","witness_cam"];
+var NOTE_USES=["set_ref","photogrammetry","scene_ref"];   // plus custom usages; hdri and witness have no note
+var noteOpen=false,mkOpen=false;   // note box / scene marker box opened by their + buttons
 /* witness_cam counts takes from 1; every other usage is one slate per folder, take optional (null) */
 function takeDefault(use){return use==="witness_cam"?1:null}
 
 /* A slate value: {ep,sc,su,tk,use,obj,cam,note}; tk may be null. (Take notes were dropped in v6; old ones are still shown in the day log.) */
-function slateId(v){return v.ep+"_"+v.sc+(v.use==="scene_ref"?"":v.su)}
-function useLabel(v){return v.use+(v.obj?" · "+v.obj:"")+(v.cam?" · "+v.cam:"")}
-function idKey(v){return [v.ep,v.sc,v.use==="scene_ref"?"":v.su,v.use,v.obj||""].join("|")}   // what the slate says
+function slateId(v){return (v.ep?v.ep+"_":"")+v.sc+(v.use==="scene_ref"?"":v.su)}   // episode is optional
+/* shooting day as one code: B01D56 (block 01, day 56); either part may be missing */
+function dayCode(d){return (d.block?"B"+pad(+d.block,2):"")+(d.day?"D"+pad(+d.day,2):"")}
+function useName(u){return u==="witness_cam"?"witness":u}
+function useLabel(v){return useName(v.use)+(v.obj?" · "+v.obj:"")+(v.cam?" · "+v.cam:"")}
+function idKey(v){return [v.day!=null?v.day:DAY.day,v.ep,v.sc,v.use==="scene_ref"?"":v.su,v.use,v.obj||""].join("|")}   // what the slate says, per shooting day
 function keyOf(v){return idKey(v)}   // one row per slate; the camera is a detail of each take (take.cam overrides slate.cam)
 function effCam(s,k){return (k&&k.cam)||s.cam||""}
 function camSummary(s){var by={},order=[];s.takes.forEach(function(k){var c=effCam(s,k);if(!(c in by)){by[c]=[];order.push(c)}if(k.tk!=null)by[c].push(k.tk)});
   if(order.length<=1)return order[0]||"";return order.map(function(c){return (c||"no camera")+(by[c].length?" T"+by[c].join(","):"")}).join(" · ")}
-function rowLabel(s){var c=camSummary(s);return s.use+(s.obj?" · "+s.obj:"")+(c?" · "+c:"")}
+function rowLabel(s){var c=camSummary(s);return (s.day?"day "+s.day+" · ":"")+s.use+(s.obj?" · "+s.obj:"")+(c?" · "+c:"")}
 function label(v,tk){return slateId(v)+(tk!=null?" T"+tk:"")+" "+useLabel(v)}
 function unitName(u){return UNITS[u]||u||""}
 
@@ -546,7 +490,7 @@ if(!S)S={ep:"3",sc:"21",su:"",tk:null,use:"set_ref",obj:"",cam:"",note:"",t:null
 /* Today: one row per slate (+camera); takes live inside it (tk null = slate without a take).
    [{key,ep,sc,su,use,obj,cam,note,last,was?,takes:[{tk,t,note?,was?}]}] */
 var H=store.get("slates",[]);
-H.forEach(function(s){if(s.cam==null)s.cam="";if(s.note==null)s.note="";delete s.id;delete s.fixedTo;s.takes.forEach(function(k){delete k.fixedTo})});
+H.forEach(function(s){if(s.day==null)s.day="";if(s.cam==null)s.cam="";if(s.note==null)s.note="";delete s.id;delete s.fixedTo;s.takes.forEach(function(k){delete k.fixedTo})});
 /* 0.9: rows that were split only by camera name are merged into one slate */
 (function(){var m={},out=[];H.forEach(function(s){var key=idKey(s),d=m[key];s.key=key;
   if(!d){m[key]=s;out.push(s);return}
@@ -556,25 +500,26 @@ H.forEach(function(s){if(s.cam==null)s.cam="";if(s.note==null)s.note="";delete s
   s.takes.forEach(function(k){if(takeOf(d,k.tk))return;var eff=k.cam||s.cam;var n=putTake(d,k.tk,k.t,{note:k.note||"",was:k.was});
     if(eff&&eff!==d.cam)n.cam=eff;if(k.after)n.after=true});
 });H=out;})();
-var DAYS=store.get("days",[]);          // wrapped days [{start,end,day,unit,slates}]
-var DI=store.get("day",null);           // open day {day,unit,start} ; null = no day started
-if(!DI&&H.length)DI={day:"",unit:"",start:store.get("dayStart",null)||(H[0].takes[0]&&H[0].takes[0].t)||isoLocal(new Date())};
-var LAST=store.get("lastDay",{day:"",unit:"main"});
-function save(){store.set("slates",H);store.set("cur",S);store.set("day",DI);}
-function saveDays(){store.set("days",DAYS)}
+/* day info lives on the form and stays until changed: {day:"12", block:"3", unit:"main"} */
+var DAY=store.get("dayinfo",null);
+if(!DAY){ /* before 1.0 the day was one free-text field ("D12_B3") on a start page */
+  var old=store.get("day",null)||store.get("lastDay",null)||{},n=String(old.day||"").match(/\d+/g)||[];
+  DAY={day:n[0]?String(+n[0]):"",block:n[1]?String(+n[1]):"",unit:old.unit||"main"};
+}
+function save(){store.set("slates",H);store.set("cur",S);store.set("dayinfo",DAY);}
 
 var fixing=null;      // form is editing a history item: {key, tk|null}
 var noteEdit=false;   // form opened from the note pencil on the slate
 var pending=null;     // "already exists" conflict: {v, s}
 var shown=null;       // correction slate on screen: {v,t,scope,wasLabel,was}
 var sel=null;         // history selection {key, tk|null} or {all:true}
-var histFrom="form", logFrom="form", logDay=null, startEdit=false;
+var histFrom="form";
 
 function findSlate(key){for(var i=0;i<H.length;i++)if(H[i].key===key)return H[i];return null}
 function takeOf(s,tk){for(var i=0;i<s.takes.length;i++)if(s.takes[i].tk===tk)return s.takes[i];return null}
 function numbered(s){return s.takes.filter(function(k){return k.tk!=null})}
 function ensureSlate(v){var k=keyOf(v),s=findSlate(k);
-  if(!s){s={key:k,ep:v.ep,sc:v.sc,su:v.use==="scene_ref"?"":v.su,use:v.use,obj:v.obj||"",cam:v.cam||"",note:"",last:"",takes:[]};H.push(s)}return s}
+  if(!s){s={key:k,day:v.day!=null?v.day:DAY.day,ep:v.ep,sc:v.sc,su:v.use==="scene_ref"?"":v.su,use:v.use,obj:v.obj||"",cam:v.cam||"",note:"",last:"",takes:[]};H.push(s)}return s}
 function putTake(s,tk,t,x){
   x=x||{};var k=takeOf(s,tk);
   if(!k){k={tk:tk,t:t};s.takes.push(k)}else k.t=t;
@@ -588,76 +533,36 @@ function removeSlate(s){H=H.filter(function(x){return x!==s})}
 function trim(){if(H.length>200){H.sort(function(a,b){return a.last<b.last?-1:1});H=H.slice(-200)}}
 
 /* ---------- screens ---------- */
-function show(name){["start","form","history","daylog","slate"].forEach(function(n){$(n).hidden=n!==name});
+function show(name){["form","history","slate"].forEach(function(n){$(n).hidden=n!==name});
   if(name!=="form"){noteEdit=false;pending=null;$("conflict").hidden=true;$("make").hidden=false}
   if(name!=="slate"){if(prev){commitPrev();prev=null}SYNC=false;$("slate").classList.remove("bigqr","is-sync")}
   if(name==="slate")wake();else release();window.scrollTo(0,0)}
 function goForm(){fillForm(S,S.tk);show("form")}
-function goHome(){if(!DI)openStart("new");else goForm()}
 var toastT=null;
 function toast(msg){$("toast").textContent=msg;$("toast").hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){$("toast").hidden=true},2600)}
-function dayInfoText(d){if(!d)return"";var a=[];if(d.day)a.push(d.day);if(d.unit)a.push(unitName(d.unit));return a.join(" · ")}
-
-/* ---------- start page ---------- */
-function motdToday(){var d=new Date(),n=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);return MOTD[n%MOTD.length]}
-/* start page modes: "new" = no day open (Start day / Skip), "home" = Home button mid-day (Continue),
-   "edit" = Day info from the Day log (Save / Cancel) */
-function openStart(mode,prefill){
-  startEdit=mode;var src=prefill||(mode!=="new"&&DI?DI:LAST);
-  var d=new Date();$("stDate").textContent=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]+" "+isoLocal(d).slice(0,10);
-  $("motd").textContent=motdToday();$("stVer").textContent="v"+APP_VERSION;
-  $("dayLbl").value=mode==="new"&&!prefill?"":(src.day||"");
-  $("dayLbl").placeholder=mode==="new"&&LAST.day?"last: "+LAST.day:"e.g. D12_B3";
-  var u=src.unit||"main";$("unit").value=UNITS[u]?u:"__custom";$("unitCustom").value=UNITS[u]?"":u;
-  $("unitCustomWrap").hidden=$("unit").value!=="__custom";
-  $("stLegend").textContent=mode==="new"?"Today":"Today's info";
-  $("stGo").textContent={new:"Start day",home:"Continue",edit:"Save"}[mode];
-  $("stSkip").textContent=mode==="edit"?"Cancel":"Skip for now";
-  $("stSkip").hidden=mode==="home";
-  show("start");
-}
-$("unit").addEventListener("change",function(){$("unitCustomWrap").hidden=this.value!=="__custom";if(!$("unitCustomWrap").hidden)$("unitCustom").focus()});
-function readStart(){var u=$("unit").value;return{day:$("dayLbl").value.trim(),unit:u==="__custom"?clean($("unitCustom").value):u}}
-$("stGo").onclick=function(){
-  var r=readStart();
-  if(startEdit!=="new"&&DI){
-    var changed=DI.day!==r.day||DI.unit!==r.unit;
-    DI.day=r.day;DI.unit=r.unit;save();store.set("lastDay",LAST={day:r.day,unit:r.unit});
-    if(startEdit==="edit"){openLog(logFrom,null);toast("Day info saved")}else{goForm();if(changed)toast("Day info saved")}
-    return}
-  newDaySlate();DI={day:r.day,unit:r.unit,start:isoLocal(new Date())};if(r.day)LAST={day:r.day,unit:r.unit};else LAST.unit=r.unit;store.set("lastDay",LAST);save();
-  goForm();
-};
-$("stSkip").onclick=function(){
-  if(startEdit==="edit"){openLog(logFrom,null);return}
-  newDaySlate();DI={day:"",unit:"",start:isoLocal(new Date())};save();goForm();
-};
-/* a new day starts with an empty slate form */
-function newDaySlate(){S={ep:"",sc:"",su:"",tk:null,use:"set_ref",obj:"",cam:"",note:"",t:null};shown=null}
-/* Home button on every screen: back to the start page (a new day only starts after Wrap) */
-[].forEach.call(document.querySelectorAll(".homebtn"),function(b){b.addEventListener("click",function(){
-  shown=null;fixing=null;sel=null;openStart(DI?"home":"new")})});
+function dayInfoText(d){var a=[];if(dayCode(d))a.push(dayCode(d));if(d.unit)a.push(unitName(d.unit));return a.join(" · ")}
 
 /* ---------- form ---------- */
 function fillForm(v,tk){
-  $("ep").value=v.ep;$("sc").value=v.sc;$("su").value=v.su||"";
+  var sm=/^(X?[ABC]?)(\d.*)$/.exec(v.sc||"");$("mk").value=sm?sm[1]:"";$("sc").value=sm?sm[2]:(v.sc||"");
+  setupOptions(v.su||"");$("su").value=v.su||"";
   $("tk").value=tk!=null?tk:"";
-  var preset=PRESETS.indexOf(v.use)>=0;
+  var preset=PRESETS.indexOf(v.use)>=0&&v.use!=="scene_ref";   // scene_ref left the list in 1.0; old slates show as custom
   $("use").value=preset?v.use:"__custom";
   $("custom").value=preset?"":v.use;$("obj").value=v.obj||"";
-  $("cam").value=v.cam||"";$("note").value=v.note||"";
+  $("note").value=v.note||"";noteOpen=!!v.note;mkOpen=false;$("noteWarn").hidden=true;
   $("err").hidden=true;
-  var di=dayInfoText(DI);$("dayLine").innerHTML=di?"Day <b>"+esc(di)+"</b>":"No day info · add it in Day log";
+  if(document.activeElement!==$("dayc"))$("dayc").value=dayCode(DAY);$("unit").value=UNITS[DAY.unit]?DAY.unit:"";
   syncForm();
 }
 function readForm(){
   var s=$("use").value,use=s==="__custom"?clean($("custom").value):s;
   var t=parseInt($("tk").value,10);
-  return{ep:$("ep").value.trim(),sc:$("sc").value.trim().toUpperCase(),
+  return{ep:$("ep").value.trim(),sc:$("mk").value+$("sc").value.trim().toUpperCase(),
     su:use==="scene_ref"?"":$("su").value.trim().toUpperCase(),
     tk:t>0?t:takeDefault(use),use:use,obj:use==="photogrammetry"?clean($("obj").value):"",
-    cam:camClean($("cam").value)||(use==="witness_cam"?"witness":""),
-    note:use==="hdri"?"":$("note").value.trim()};
+    cam:"",   // camera names left the form in 1.0
+    note:NOTE_USES.indexOf(use)<0&&PRESETS.indexOf(use)>=0?"":$("note").value.trim()};
 }
 function syncNotes(){
   var a=$("note");if(a.value.length>NOTE_MAX)a.value=a.value.slice(0,NOTE_MAX);
@@ -665,18 +570,21 @@ function syncNotes(){
   $("count").textContent=n+"/"+NOTE_MAX;$("count").classList.toggle("full",n>=NOTE_MAX);
 }
 function syncForm(){
+  var mkOn=!!$("mk").value||mkOpen;$("mkWrap").hidden=!mkOn;$("addMk").textContent=mkOn?"Remove marker":"Add marker";$("addMk").setAttribute("aria-label",mkOn?"Remove the scene marker":"Add a scene marker (X, A, B, C)");
   var whole=fixing&&fixing.tk==null;
   $("tkWrap").style.visibility=whole?"hidden":"";
+  var noTk=!fixing&&$("use").value==="photogrammetry";   // a scan has no takes
+  $("tk").disabled=noTk;if(noTk)$("tk").value="";
   var v=readForm(),sr=v.use==="scene_ref",wit=v.use==="witness_cam";
   $("tk").placeholder=wit?"1":"—";
   $("customWrap").hidden=$("use").value!=="__custom";
   $("objWrap").hidden=$("use").value!=="photogrammetry";
-  $("noteWrap").hidden=$("use").value==="hdri";
+  var canNote=$("use").value==="__custom"||NOTE_USES.indexOf($("use").value)>=0;
+  $("noteWrap").hidden=!canNote||!noteOpen;$("addNote").hidden=!canNote||noteOpen||!$("noteWarn").hidden;if(!canNote)$("noteWarn").hidden=true;
   $("su").disabled=sr;
   $("form").classList.toggle("is-corr",!!fixing);
   $("fixing").hidden=!fixing;
-  var id=(v.ep||"?")+"_"+(v.sc||"?")+v.su;
-  $("formPreview").innerHTML="Slate <b>"+esc(id)+"</b>"+(whole?" · all takes":(v.tk!=null?" · take <b>"+v.tk+"</b>":" · no take"))+" · <b>"+esc(useLabel({use:v.use||"?",obj:v.obj,cam:v.cam}))+"</b>";
+  $("formPreview").innerHTML=esc((v.ep?v.ep+"_":"")+(v.sc||"?")+v.su)+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'');
   $("conflict").hidden=true;$("make").hidden=false;
   var ne=noteEdit&&!fixing&&keyOf(v)===keyOf(S);
   $("noteBar").hidden=!(noteEdit&&!fixing);$("noteBarWhat").textContent=slateId(S)+" · "+useLabel(S);
@@ -686,18 +594,32 @@ function syncForm(){
     $("make").textContent=changed?"Make correction slate":"Save changes";}}
   syncNotes();
 }
-["ep","sc","su","tk","custom","obj","cam"].forEach(function(id){$(id).addEventListener("input",syncForm)});
+["ep","sc","su","tk","custom","obj"].forEach(function(id){$(id).addEventListener("input",syncForm)});
+["mk","su"].forEach(function(id){$(id).addEventListener("change",syncForm)});
 $("note").addEventListener("input",syncNotes);
 $("use").addEventListener("change",function(){if(!fixing)$("tk").value="";syncForm();var u=$("use").value;
   if(u==="__custom")$("custom").focus();if(u==="photogrammetry"&&!$("obj").value)$("obj").focus()});
+$("addMk").onclick=function(){if(!$("mkWrap").hidden){$("mk").value="";mkOpen=false;syncForm();return}mkOpen=true;syncForm();var m=$("mk");try{m.focus();if(m.showPicker)m.showPicker()}catch(e){}};
+$("addNote").onclick=function(){
+  $("noteWarnTx").textContent=$("use").value==="set_ref"?"A note switches set_ref from the small QR to the big one. Its squares get smaller and it reads less well from far away."
+    :"A note makes the QR denser, so its squares get smaller and it reads less well from far away.";
+  $("noteWarn").hidden=false;syncForm();try{$("noteWarn").scrollIntoView({block:"center"})}catch(e){}};
+$("noteYes").onclick=function(){noteOpen=true;$("noteWarn").hidden=true;syncForm();try{$("note").focus()}catch(e){}};
+$("noteNo").onclick=function(){$("noteWarn").hidden=true;syncForm()};
 $("fixCancel").onclick=function(){fixing=null;openHistory(histFrom)};
 $("formHist").onclick=function(){openHistory("form")};
-$("formLog").onclick=function(){openLog("form",null)};
+/* day, block and unit are saved as soon as they change */
+/* block and day are typed as one code: B01D56, B1D56, D56 or B02 */
+function parseDay(t){t=String(t||"").toUpperCase();var b=/B\s*0*(\d{1,2})/.exec(t),d=/D\s*0*(\d{1,3})/.exec(t);
+  if(!b&&!d&&/^\s*\d+\s*$/.test(t))d=[0,String(+t)];   // a bare number is the day
+  return{block:b?String(+b[1]):"",day:d?String(+d[1]):""}}
+function readDay(){var x=parseDay($("dayc").value);DAY={day:x.day,block:x.block,unit:$("unit").value};store.set("dayinfo",DAY);syncForm()}
+$("dayc").addEventListener("input",readDay);$("unit").addEventListener("change",readDay);
+$("dayc").addEventListener("blur",function(){$("dayc").value=dayCode(DAY)});   // tidy to B01D56
 
 $("form").addEventListener("submit",function(e){
   e.preventDefault();
   var v=readForm(),err=[];
-  if(!v.ep)err.push("episode");
   if(!v.sc)err.push("scene");
   if(v.su&&suToN(v.su)<0)err.push("setup (letters only, no I or O)");
   if($("use").value==="__custom"&&!v.use)err.push("custom usage");
@@ -742,6 +664,7 @@ function moveTakes(from,takes,dest,wasText){
 }
 function applyEdit(v){
   var g=editTarget();if(!g)return"That slate is no longer in Slates.";
+  v=Object.assign({},v,{day:g.s.day});   // an edit stays on the slate's own day
   var s=g.s,k=g.k,sameSlate=idKey(v)===idKey(s),now=isoLocal(new Date());
   if(!k){ /* ---- whole slate ---- */
     if(sameSlate){ // camera / note only: no new slate needed
@@ -751,7 +674,7 @@ function applyEdit(v){
     }
     var hadTakes=numbered(s).length>0,w=wasObj(s,null),was=label(s),wl=label(s)+(hadTakes?" (all takes)":""),dest=findSlate(keyOf(v));
     if(dest&&dest!==s){moveTakes(s,s.takes.slice(),dest,was);if(v.note)dest.note=v.note}
-    else{removeSlate(s);s.key=keyOf(v);s.ep=v.ep;s.sc=v.sc;s.su=v.su;s.use=v.use;s.obj=v.obj;s.cam=v.cam;s.note=v.note;s.was=was;
+    else{removeSlate(s);s.key=keyOf(v);s.day=v.day;s.ep=v.ep;s.sc=v.sc;s.su=v.su;s.use=v.use;s.obj=v.obj;s.cam=v.cam;s.note=v.note;s.was=was;
       s.takes.forEach(function(x){if(x.cam===s.cam)delete x.cam});H.push(s)}
     trim();save();
     shown={v:Object.assign({},v,{tk:null}),t:now,scope:"slate",all:hadTakes,wasLabel:wl,was:w};
@@ -777,9 +700,8 @@ function applyEdit(v){
 
 /* ---------- history ---------- */
 function openHistory(from){histFrom=from;sel=null;fixing=null;renderHist();show("history")}
-$("histBack").onclick=function(){if(histFrom==="slate"){show("slate");renderSlate()}else goHome()};
+$("histBack").onclick=function(){if(histFrom==="slate"){show("slate");renderSlate()}else goForm()};
 $("slateHist").onclick=function(){openHistory("slate")};
-$("histLog").onclick=function(){openLog("history",null)};
 
 function slateRow(s,interactive){
   var row=document.createElement("div");
@@ -811,24 +733,13 @@ function slateRow(s,interactive){
     t.textContent="T"+k.tk+": "+(k.note||"")+(k.was?(k.note?" · ":"")+"was "+k.was:"");row.appendChild(t)}})}
   return row;
 }
-function reportRow(s){
-  var r=document.createElement("div");r.className="rrow";
-  var first=s.takes.length?s.takes[0].t:s.last;
-  var nb=numbered(s);
-  var h='<span class="t">'+hm(first)+'</span><span class="m"><b>'+esc(slateId(s))+'</b><span class="u">'+esc(rowLabel(s))+'</span></span>';
-  if(nb.length)h+='<span class="x">takes '+nb.map(function(k){return k.tk+(k.rolls>1?" ("+k.rolls+" rolls)":"")+(k.reh?" (rehearsal)":"")+(k.after?" (slated after)":"")}).join(", ")+'</span>';
-  if(s.note)h+='<span class="x n">✎ '+esc(s.note)+'</span>';
-  if(s.was)h+='<span class="x w">was '+esc(s.was)+'</span>';
-  nb.forEach(function(k){if(k.note||k.was)h+='<span class="x'+(k.was?' w':' n')+'">T'+k.tk+': '+esc((k.note||"")+(k.was?(k.note?" · ":"")+"was "+k.was:""))+'</span>'});
-  r.innerHTML=h;return r;
-}
 function sorted(list){return list.slice().sort(function(a,b){return a.last<b.last?1:-1})}
 function renderHist(){
   var box=$("hist");box.innerHTML="";
   var list=sorted(H);
-  if(!list.length)box.innerHTML='<p class="empty">No slates today yet. Every slate you show is listed here.</p>';
+  if(!list.length)box.innerHTML='<p class="empty">No slates yet. Every slate you show is listed here.</p>';
   list.forEach(function(s){box.appendChild(slateRow(s,true))});
-  if(list.length){var c=document.createElement("button");c.type="button";c.className="ghost";c.textContent="Clear today's slates";c.style.alignSelf="flex-start";
+  if(list.length){var c=document.createElement("button");c.type="button";c.className="ghost";c.textContent="Clear all slates";c.style.alignSelf="flex-start";
     c.onclick=function(){sel={all:true};renderHist()};box.appendChild(c)}
   renderActions();
 }
@@ -836,7 +747,7 @@ function selInfo(){if(!sel||sel.all)return null;var s=findSlate(sel.key);if(!s)r
   var k=sel.tk!=null?takeOf(s,sel.tk):null;if(sel.tk!=null&&!k)return null;return{s:s,k:k}}
 function renderActions(confirm){
   if(sel&&sel.all){$("actions").hidden=false;$("actBtns").hidden=true;$("confirmBtns").hidden=false;
-    $("actWhat").innerHTML="Delete <b>all "+H.length+" slate"+(H.length===1?"":"s")+"</b> from today's slates? This can't be undone.";return}
+    $("actWhat").innerHTML="Delete <b>all "+H.length+" slate"+(H.length===1?"":"s")+"</b> from Slates? This can't be undone.";return}
   var g=selInfo();
   $("actions").hidden=!g;if(!g)return;
   var n=numbered(g.s).length;
@@ -858,124 +769,15 @@ $("actEdit").onclick=function(){var g=selInfo();if(!g)return;
 $("actDel").onclick=function(){renderActions(true)};
 $("confNo").onclick=function(){sel=null;renderHist()};
 $("confYes").onclick=function(){
-  if(sel&&sel.all){H=[];save();sel=null;renderHist();toast("Today's slates cleared");return}
+  if(sel&&sel.all){H=[];save();sel=null;renderHist();toast("Slates cleared");return}
   var g=selInfo();if(!g)return;
   if(g.k){g.s.takes=g.s.takes.filter(function(x){return x!==g.k});if(!g.s.takes.length)removeSlate(g.s)}
   else removeSlate(g.s);
   save();sel=null;renderHist();toast("Deleted")};
 
-/* ---------- day log ---------- */
-function countOf(slates){var t=0,c=0,n=0;slates.forEach(function(s){if(s.was)c++;if(s.note)n++;
-  s.takes.forEach(function(k){if(k.tk!=null)t++;if(k.was)c++;if(k.note)n++})});return{s:slates.length,t:t,c:c,n:n}}
-function dayLabel(iso){if(!iso)return"—";var d=new Date(iso.slice(0,19));return["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]+" "+iso.slice(0,10)}
-function openLog(from,idx){logFrom=from;logDay=idx;renderLog();show("daylog")}
-$("dlBack").onclick=function(){
-  if(logDay!=null&&DI){openLog(logFrom,null);return}
-  if(logFrom==="history"&&DI)openHistory(histFrom);else goHome()};
-function renderLog(){
-  var past=logDay!=null,d=past?DAYS[logDay]:{start:DI&&DI.start,end:null,day:DI&&DI.day,unit:DI&&DI.unit,slates:H};
-  if(!d){logDay=null;return renderLog()}
-  var c=countOf(d.slates);
-  $("dlTitle").textContent=past?"Wrapped day":"Today";
-  var info=dayInfoText(d);$("dlDayInfo").textContent=info||"No day info";$("dlDayInfo").style.color=info?"":"var(--mute)";
-  $("dlRange").textContent=(d.start?dayLabel(d.start)+" · from "+hm(d.start):"Not started")+(d.end?" to "+(d.end.slice(0,10)!==(d.start||"").slice(0,10)?d.end.slice(0,10)+" ":"")+hm(d.end):(past?"":" · open"));
-  $("dlStats").innerHTML=[["s","Slates"],["t","Takes"],["n","Notes"],["c","Fixes"]].map(function(x){return'<div class="stat'+(x[0]==="c"&&c.c?" c":"")+'"><b>'+c[x[0]]+'</b><span>'+x[1]+'</span></div>'}).join("");
-  $("dlOpenBtns").hidden=past||!DI;$("dlWrapConfirm").hidden=true;$("dlWrapHint").hidden=true;
-  $("dlPastBtns").hidden=!past;$("dlDelConfirm").hidden=true;$("dlDelHint").hidden=true;
-  $("dlWrap").disabled=!H.length;
-  var box=$("dlList");box.innerHTML="";
-  if(!d.slates.length)box.innerHTML='<p class="empty">Nothing slated yet today.</p>';
-  sorted(d.slates).reverse().forEach(function(s){box.appendChild(reportRow(s))});
-  $("dlEditHint").hidden=past||!DI;
-  var pb=$("dlPast");pb.innerHTML="";
-  $("dlPastLbl").hidden=past||!DAYS.length;pb.hidden=past;
-  if(!past)DAYS.slice().reverse().forEach(function(dd,ri){var i=DAYS.length-1-ri,cc=countOf(dd.slates),inf=dayInfoText(dd);
-    var b=document.createElement("button");b.type="button";b.className="dayrow";
-    b.innerHTML='<span><span class="d">'+esc(inf||dayLabel(dd.start))+'</span><br><span class="m">'+esc(inf?dayLabel(dd.start)+" · ":"")+hm(dd.start)+'–'+hm(dd.end)+' · '+cc.s+' slates · '+cc.t+' takes</span></span><span class="go">Open</span>';
-    b.onclick=function(){openLog(logFrom,i)};pb.appendChild(b)});
-}
-$("dlToSlates").onclick=function(){openHistory("form")};
-$("dlWrap").onclick=function(){if(!H.length)return;$("dlOpenBtns").hidden=true;$("dlWrapConfirm").hidden=false;$("dlWrapHint").hidden=false};
-$("dlWrapNo").onclick=function(){renderLog()};
-function wrapDay(endTime){
-  DAYS.push({start:DI.start,end:endTime||isoLocal(new Date()),day:DI.day||"",unit:DI.unit||"",slates:H});
-  if(DI.day||DI.unit){LAST={day:DI.day,unit:DI.unit||"main"};store.set("lastDay",LAST)}
-  saveDays();H=[];DI=null;save();
-}
-$("dlWrapYes").onclick=function(){
-  wrapDay();openLog(logFrom,DAYS.length-1);toast("Day wrapped. Send it when you're ready.");
-};
-/* ---------- new-day check: date changed AND more than 6 h since the last slate ---------- */
-function lastSlateTime(){var m="";H.forEach(function(s){s.takes.forEach(function(k){if(k.t>m)m=k.t});if(s.last>m)m=s.last});return m}
-function incDay(s){return String(s||"").replace(/\d+/,function(n){return pad(+n+1,n.length)})}
-function checkNewDay(){
-  if(!DI||!H.length||!$("newDay").hidden)return;
-  var last=lastSlateTime();if(!last||store.get("sameDayAck","")===last)return;
-  var now=new Date(),then=new Date(last.slice(0,19)),hours=(now-then)/36e5;
-  if(isoLocal(now).slice(0,10)===last.slice(0,10)||hours<=6)return;
-  var info=dayInfoText(DI);
-  $("ndText").innerHTML=(info?"<b>"+esc(info)+"</b>":"Yesterday's day")+" is still open.<br>Last slate: "+esc(dayLabel(last))+" "+hm(last)+" ("+Math.round(hours)+" h ago).";
-  $("newDay").hidden=false;
-}
-$("ndSame").onclick=function(){store.set("sameDayAck",lastSlateTime());$("newDay").hidden=true};
-$("ndNew").onclick=function(){
-  var nextDay=incDay(DI.day),unit=DI.unit||LAST.unit||"main",last=lastSlateTime();
-  wrapDay(last);newDaySlate();$("newDay").hidden=true;
-  openStart("new",{day:nextDay,unit:unit});
-  if(nextDay)toast("Yesterday is wrapped. Check the day and press Start day.");
-};
-$("dlSendOpen").onclick=function(){sendDay({start:DI&&DI.start,end:null,day:DI&&DI.day,unit:DI&&DI.unit,slates:H})};
-$("dlSendPast").onclick=function(){if(logDay!=null)sendDay(DAYS[logDay])};
-$("dlDel").onclick=function(){$("dlPastBtns").hidden=true;$("dlDelConfirm").hidden=false;$("dlDelHint").hidden=false};
-$("dlDelNo").onclick=function(){renderLog()};
-$("dlDelYes").onclick=function(){if(logDay==null)return;DAYS.splice(logDay,1);saveDays();logDay=null;toast("Day log deleted");if(DI)renderLog();else goHome()};
-
-function dayJSON(d){
-  var o={app:"qrslate-daylog",v:1,app_version:APP_VERSION};if(d.day)o.day=d.day;if(d.unit)o.unit=d.unit;o.start=d.start;o.wrap=d.end;
-  o.slates=sorted(d.slates).reverse().map(function(s){var o={id:slateId(s),episode:s.ep,scene:s.sc};
-      if(s.use!=="scene_ref")o.setup=s.su;o.usage=s.use;if(s.obj)o.object=s.obj;if(s.cam)o.camera=s.cam;if(s.note)o.note=s.note;if(s.was)o.was=s.was;
-      o.takes=s.takes.map(function(k){var t={};if(k.tk!=null)t.take=k.tk;t.time=k.t;if(k.cam)t.camera=k.cam;if(k.after)t.slated_after=true;if(k.rolls>1)t.rolls=k.rolls;if(k.reh)t.rehearsals=k.reh;if(k.note)t.note=k.note;if(k.was)t.was=k.was;return t});return o});
-  return o;
-}
-function dayText(d){
-  var c=countOf(d.slates),L=["QR SLATE DAY LOG","Day:   "+(d.day||"—"),"Unit:  "+(unitName(d.unit)||"—"),"Date:  "+dayLabel(d.start),"From:  "+(d.start||"—"),"Wrap:  "+(d.end||"open"),
-    "Total: "+c.s+" slates, "+c.t+" takes, "+c.n+" notes, "+c.c+" fixes","App:   QR Slate v"+APP_VERSION,""];
-  sorted(d.slates).reverse().forEach(function(s){
-    L.push(slateId(s)+"  "+useLabel(s));
-    if(s.was)L.push("   was "+s.was);
-    if(s.note)L.push("   note: "+s.note);
-    s.takes.forEach(function(k){L.push("   "+(k.tk!=null?"T"+pad(k.tk):"slate")+"  "+(k.t||"").slice(11,19)+(k.cam?"  ["+k.cam+"]":"")+(k.rolls>1?"  ("+k.rolls+" rolls, last is the real take)":"")+(k.reh?"  ("+k.reh+" rehearsal"+(k.reh>1?"s":"")+")":"")+(k.after?"  (slated after, separate clip)":"")+(k.note?"  "+k.note:"")+(k.was?"  (was "+k.was+")":""))});
-    L.push("");
-  });
-  return L.join("\n");
-}
-function sendDay(d){
-  if(!d||!d.slates.length){toast("Nothing to send yet");return}
-  var base="daylog_"+(d.start||isoLocal(new Date())).slice(0,10)+(d.day?"_"+camClean(d.day):"")+(d.end?"_wrap-"+d.end.slice(11,16).replace(":",""):"_open");
-  var json=JSON.stringify(dayJSON(d),null,2),txt=dayText(d);
-  var files=null;
-  try{files=[new File([json],base+".json",{type:"application/json"}),new File([txt],base+".txt",{type:"text/plain"})]}catch(e){}
-  if(files&&navigator.canShare&&navigator.canShare({files:files})){
-    navigator.share({files:files,title:base}).catch(function(err){if(err&&err.name!=="AbortError")copyFallback(txt,json)});return}
-  var framed=false;try{framed=window.self!==window.top}catch(e){framed=true}
-  if(framed){copyFallback(txt,json);return} // embedded previews block downloads
-  try{ // desktop browsers: download both files
-    [[json,base+".json","application/json"],[txt,base+".txt","text/plain"]].forEach(function(f){
-      var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([f[0]],{type:f[2]}));a.download=f[1];document.body.appendChild(a);a.click();
-      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000)});
-    toast("Saved "+base+".json and .txt");
-  }catch(e){copyFallback(txt,json)}
-}
-function copyFallback(txt,json){
-  var all=txt+"\n\n----- JSON -----\n"+json;
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(all).then(function(){toast("Day log copied. Paste it into Notes or Mail.")},function(){toast("Sharing isn't available here")});
-  else toast("Sharing isn't available here");
-}
-
 /* ---------- slate ---------- */
 function stampCurrent(){
   S.t=isoLocal(new Date());S.reh=false;
-  if(!DI)DI={day:"",unit:"",start:S.t};
   var isNew=!findSlate(keyOf(S)),s=ensureSlate(S);
   if(isNew)s.note=S.note||"";else{S.note=s.note||"";if(!s.cam&&S.cam)s.cam=S.cam}
   var tk0=takeOf(s,S.tk);
@@ -984,32 +786,35 @@ function stampCurrent(){
   trim();save();
 }
 function payload(v,t,c,pv){
-  /* hdri: only the slate ID, e.g. 3-42A, plus the HDRI number (the take) when a setup has several: 3-42A-2.
-     The smallest QR there is (21x21), so fisheye shots can still read it. Day and unit come from the day log. */
-  if(v.use==="hdri"&&!c&&!pv&&!(v.roll>1))return (v.ep+"-"+v.sc+v.su+(v.tk!=null?"-"+v.tk:"")).toUpperCase();
-  /* witness_cam: 15 digits, the smallest QR there is (21x21) with the strongest error correction, so 360 / fisheye cameras read it.
-     Falls back to the JSON QR when a value doesn't fit the fixed fields. */
-  if(v.use==="witness_cam"&&!c){var wd=witnessDigits(v,pv);if(wd)return wd}
+  /* small code (17 digits, 21x21): hdri and witness_cam always; set_ref while it has no note.
+     Corrections carry what the slate was, so they always use the full code. */
+  var small=v.use==="hdri"||v.use==="witness_cam"||(v.use==="set_ref"&&!v.note);
+  if(small&&!c){var sd=slateDigits(v,t,pv?1:v.reh?2:v.roll>1?3:0);if(sd)return sd}
   var p={app:"qrslate",v:1,episode:v.ep,scene:v.sc};
   if(v.use!=="scene_ref")p.setup=v.su;
   if(v.tk!=null)p.take=v.tk;
   p.usage=v.use;if(v.obj)p.object=v.obj;if(v.cam)p.camera=v.cam;
-  if(DI&&DI.day)p.day=DI.day;if(DI&&DI.unit)p.unit=DI.unit;
+  if(dayCode(DAY))p.day=dayCode(DAY);if(DAY.unit)p.unit=DAY.unit;   // day like B01D56
   p.id=slateId(v);p.time=t;
   if(v.note)p.note=v.note;
   if(c)p.correction={scope:c.scope,was:c.was};
-  if(!c&&!pv&&v.roll>1)p.roll=v.roll;   // false start: this is roll N of the same take
+  if(!c&&!pv&&v.roll>1)p.roll=v.roll;   // roll again: this is roll N of the same take
+  if(!c&&!pv&&v.reh)p.rehearsal=true;
   if(pv)p.previous_clip=true;   // this clip is only a slate; it labels the clip before it
   return JSON.stringify(p);
 }
-/* witness digit code, fixed width, no separators (see docs/qr-format.md 1c):
-   DDD day · EE episode · SSS scene · s scene letter · UU setup · TT take · R roll · F flag
-   flag: 0 normal, 1 previous-take slate, 2 rehearsal, 3-9 reserved */
-function witnessDigits(v,pv){
-  var dm=(DI&&DI.day||"").match(/\d+/),day=dm?+dm[0]:0,
-      sm=/^(\d{1,3})([A-Z]?)$/.exec(v.sc||""),sl=sm&&sm[2]?L.indexOf(sm[2])+1:0,su=suToN(v.su||""),roll=pv?1:(v.roll||1);
-  if(day>999||!/^\d{1,2}$/.test(v.ep||"")||!sm||(sm[2]&&sl<1)||sl>9||su<0||su>99||v.tk==null||v.tk<1||v.tk>99||roll>9)return null;
-  return pad(day,3)+pad(+v.ep,2)+pad(+sm[1],3)+sl+pad(su,2)+pad(v.tk,2)+roll+(pv?1:v.reh?2:0);
+/* slate code, 17 digits, fixed width, no separators (see docs/qr-format.md 1c):
+   EE episode (00 none) · M scene marker · SSS scene · UU setup · TT take · YYDDD year + day of the year · N unit · F flag
+   M: 0 none 1 X 2 A 3 B 4 C 5 XA 6 XB 7 XC · UU: 00 none, 01-24 A-Z, 25 AA … 96 CZ · TT 00 = no take
+   N: 0 none 1 main 2 second 3 splinter 4 vfx 5 other
+   F: 0 normal · 1 previous-take slate (labels the clip before it) · 2 rehearsal · 3 roll again (same take rolled again after a cut)
+   Returns null when a value doesn't fit; the full code is used then. */
+function slateDigits(v,t,f){
+  var m=/^(X?[ABC]?)(\d{1,3})$/.exec(v.sc||""),mk=m?MARKS.indexOf(m[1]):-1,su=suToN(v.su||""),tk=v.tk==null?0:v.tk,
+      d=/^(\d{4})-(\d\d)-(\d\d)/.exec(t||"");
+  if(!/^\d{0,2}$/.test(v.ep||"")||mk<0||su<0||su>SETUP_MAX||tk<0||tk>99||!d)return null;
+  var doy=Math.round((Date.UTC(+d[1],+d[2]-1,+d[3])-Date.UTC(+d[1],0,1))/864e5)+1;
+  return pad(+v.ep,2)+mk+pad(+m[2],3)+pad(su,2)+pad(tk,2)+d[1].slice(2)+pad(doy,3)+(UNIT_DIGIT[DAY.unit]||0)+(f||0);
 }
 function drawQR(text,corr){
   /* draw at the exact on-screen pixel size so every module is a whole number of pixels (crisp, never resampled) */
@@ -1020,11 +825,11 @@ function drawQR(text,corr){
   if(typeof qrcode!=="function"){ctx.fillStyle="#f6f6f2";ctx.fillRect(0,0,W,W);ctx.fillStyle="#b00";ctx.font="28px sans-serif";ctx.fillText("QR library didn't load.",40,280);return}
   if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
   /* short codes use the QR's compact modes and the strongest error correction:
-     digits only (witness) numeric mode; hdri / sync (digits, capitals, "-", ".") alphanumeric mode */
+     digits only (slate code) numeric mode; sync (digits, capitals, "-", ".") alphanumeric mode */
   var num=/^\d{1,40}$/.test(text),short=num||/^[0-9A-Z.-]{1,20}$/.test(text);
   var q=qrcode(0,short?"H":"Q");q.addData(text,num?"Numeric":short?"Alphanumeric":"Byte");q.make();
   var band=0;                              // correction is shown by the orange screen border, not inside the QR
-  var inner=W-band*2,n=q.getModuleCount(),quiet=4,cell=Math.floor(inner/(n+quiet*2)),off=band+Math.floor((inner-cell*n)/2);
+  var inner=W-band*2,n=q.getModuleCount(),quiet=2,cell=Math.floor(inner/(n+quiet*2)),off=band+Math.floor((inner-cell*n)/2);
   ctx.fillStyle="#f6f6f2";ctx.fillRect(band,band,inner,inner);ctx.fillStyle="#000";
   for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))ctx.fillRect(off+k*cell,off+r*cell,cell,cell);
 }
@@ -1034,7 +839,7 @@ function renderSlate(){
   $("slate").classList.toggle("is-prev",!!pv);
   $("prevBanner").hidden=!pv;$("prevDone").hidden=!pv;
   if(pv)$("prevDone").textContent="Done · next is T"+(pv.n+1);
-  $("prevRow").hidden=!!c||!!pv;$("falseBtn").hidden=$("prevBtn").hidden=S.tk==null;
+  $("prevRow").hidden=!!c;$("falseBtn").hidden=$("prevBtn").hidden=S.tk==null;
   $("rehBtn").hidden=v.use!=="witness_cam"||S.tk==null;$("rehBtn").setAttribute("aria-pressed",S.reh?"true":"false");
   var takeText=c&&c.scope==="slate"?(c.all?"ALL":""):(v.tk!=null?String(v.tk):"");
   $("slate").classList.toggle("is-corr",!!c);
@@ -1046,19 +851,29 @@ function renderSlate(){
   $("bigTake").textContent=takeText;
   var rl=!c&&!pv&&v.roll>1,rh=!c&&!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
   $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
-  $("bigUse").innerHTML=esc(v.use.replace(/_/g," "))+(v.obj?' · <span class="obj">'+esc(v.obj)+'</span>':'');
+  $("bigUse").innerHTML=esc(useName(v.use).replace(/_/g," "))+(v.obj?' <span class="nw">· <span class="obj">'+esc(v.obj)+'</span></span>':'');
   var sub=[];if(v.cam)sub.push('<span class="cam">'+esc(v.cam)+'</span>');
   $("bigSub").innerHTML=sub.join(" · ");$("bigSub").hidden=!sub.length;
-  $("noteBtn").hidden=!!c||!!pv||v.use==="hdri";
+  $("noteBtn").hidden=!!c||v.use==="hdri"||v.use==="witness_cam";
   $("noteTxt").textContent=v.note?v.note:"+ note";$("noteBtn").classList.toggle("empty",!v.note);
   $("noteBtn").setAttribute("aria-label",v.note?"Edit note: "+v.note:"Add a note");
-  $("stamp").textContent=(t?"slated "+t.slice(0,10)+" "+t.slice(11,19):"")+(DI&&dayInfoText(DI)?" · "+dayInfoText(DI):"");
+  $("stamp").textContent=dayInfoText(DAY);$("stamp").hidden=!dayInfoText(DAY);
   var sr=S.use==="scene_ref",wit=S.use==="witness_cam";
   $("suDown").disabled=!!pv||(!c&&(sr||!S.su));$("suUp").disabled=!!pv||(!c&&sr);
-  $("tkDown").disabled=pv?pv.n<=1:(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null));
+  var pg=!c&&S.use==="photogrammetry";$("tkUp").disabled=pg;
+  $("tkDown").disabled=pv?pv.n<=1:(pg||(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null)));
   $("slate").classList.toggle("is-sync",!!SYNC);$("syncBanner").hidden=$("syncTime").hidden=$("syncDone").hidden=!SYNC;
+  fitId();
   if(SYNC)syncFrame(true);else drawQR(payload(v,t,c,!!pv),!!c);tick();
 }
+/* a long slate (12_XA38CZ · 99) shrinks to fit the width instead of running off the screen */
+function fitId(){var a=$("bigId"),b=$("bigTake"),row=a.parentNode.parentNode;a.style.fontSize=b.style.fontSize="";
+  var avail=row.parentNode.clientWidth,g=parseFloat(getComputedStyle(row).columnGap)||0,
+      w=a.scrollWidth+($("takeCell").hidden?0:b.scrollWidth+$("takeDiv").offsetWidth+g*2);
+  if(avail>0&&w>avail){var f=parseFloat(getComputedStyle(a).fontSize)*(avail-g*2)/(w-g*2)*.96;a.style.fontSize=b.style.fontSize=f+"px"}
+  var u=$("bigUse");u.style.fontSize="";   // a long word (photogrammetry) shrinks to fit rather than breaking mid-word
+  if(u.clientWidth>0&&u.scrollWidth>u.clientWidth)u.style.fontSize=parseFloat(getComputedStyle(u).fontSize)*u.clientWidth/u.scrollWidth*.97+"px"}
+try{document.fonts.ready.then(function(){if(!$("slate").hidden)fitId()})}catch(e){}
 $("backCur").onclick=function(){shown=null;renderSlate()};
 /* "Slate previous take": a slate-only clip that labels the clip before it. Take -/+ pick the missed take; Done moves on. */
 var prev=null;
@@ -1068,7 +883,7 @@ $("falseBtn").onclick=function(){
   if(S.tk==null||shown||prev)return;
   var s=ensureSlate(S),k=takeOf(s,S.tk)||putTake(s,S.tk,isoLocal(new Date()));
   k.rolls=(k.rolls||1)+1;S.roll=k.rolls;S.t=isoLocal(new Date());save();renderSlate();
-  toast("False start. Same take, roll "+S.roll+".")};
+  toast("Roll again. Same take, roll "+S.roll+".")};
 $("prevBtn").onclick=function(){if(S.tk==null)return;shown=null;prev={n:S.tk,t:isoLocal(new Date())};renderSlate()};
 $("prevDone").onclick=function(){if(!prev)return;commitPrev();S.tk=prev.n+1;prev=null;stampCurrent();renderSlate()};
 /* Sync: the QR shows the phone's clock and changes once a second, exactly on the second, e.g. SYNC-142605.000 (14:26:05).
@@ -1078,12 +893,14 @@ var SYNC=false,syncRAF=0,syncShown="";
 function syncText(d){return "SYNC-"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+".000"}
 function syncFrame(force){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hidden)return;
   var d=new Date(),txt=syncText(d);
-  if(force||txt!==syncShown){syncShown=txt;drawQR(txt,false);
+  if(force||txt!==syncShown){syncShown=txt;drawQR(txt,false);tick(d);   // top clock changes on the same frame as the QR
     $("syncTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
   syncRAF=requestAnimationFrame(function(){syncFrame(false)})}
-$("syncBtn").onclick=function(){if(shown||prev)return;SYNC=true;renderSlate()};
-$("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);renderSlate()};
-/* Rehearsal: the next clip on this take is a rehearsal (witness QR flag 2). Counted on the take in the day log; ends on the next step. */
+$("syncBtn").onclick=function(){if(shown||prev)return;syncFromForm=false;SYNC=true;renderSlate()};
+var syncFromForm=false;   // Sync opened from the form: Done goes back to the form as it was
+$("formSync").onclick=function(){shown=null;syncFromForm=true;SYNC=true;show("slate");renderSlate()};
+$("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);if(syncFromForm){syncFromForm=false;show("form")}else renderSlate()};
+/* Rehearsal: the next clip on this take is a rehearsal (slate code flag 2). Counted on the take in the day log; ends on the next step. */
 $("rehBtn").onclick=function(){
   if(S.tk==null||shown||prev)return;
   S.reh=!S.reh;
@@ -1103,11 +920,12 @@ function landOn(su){
 }
 $("suUp").onclick=function(){if(prev)return;bump(function(){return S.use!=="scene_ref"},function(){landOn(nToSu(suToN(S.su)+1))})};
 $("suDown").onclick=function(){if(prev)return;bump(function(){return S.use!=="scene_ref"&&!!S.su},function(){landOn(nToSu(suToN(S.su)-1))})};
-$("tkUp").onclick=function(){if(prev){prev.n++;prev.t=isoLocal(new Date());renderSlate();return}bump(function(){return true},function(){S.tk=S.tk==null?1:S.tk+1})};
-$("tkDown").onclick=function(){if(prev){if(prev.n>1){prev.n--;prev.t=isoLocal(new Date());renderSlate()}return}bump(function(){return S.use==="witness_cam"?(S.tk!=null&&S.tk>1):S.tk!=null},
+$("tkUp").onclick=function(){if(prev)return;bump(function(){return S.use!=="photogrammetry"},function(){S.tk=S.tk==null?1:S.tk+1})};
+$("tkDown").onclick=function(){if(prev)return;bump(function(){return S.use==="witness_cam"?(S.tk!=null&&S.tk>1):S.tk!=null},
   function(){S.tk=S.tk<=1?null:S.tk-1})};
-$("editBtn").onclick=function(){shown=null;fixing=null;noteEdit=false;goHome()};
+$("editBtn").onclick=function(){shown=null;fixing=null;noteEdit=false;goForm()};
 $("noteBtn").onclick=function(){shown=null;fixing=null;noteEdit=true;fillForm(S,S.tk);show("form");
+  if(!S.note){$("addNote").onclick();return}   // a new note shows the warning first
   var n=$("note");try{n.focus();n.setSelectionRange(n.value.length,n.value.length)}catch(e){}};
 
 /* sideways view: turns only the slate screen, not the phone */
@@ -1119,20 +937,26 @@ $("rotBtn").onclick=function(){ROT=!ROT;store.set("rot",ROT);applyRot();renderSl
 window.addEventListener("resize",function(){sizeVars();if(!$("slate").hidden)renderSlate()});sizeVars();applyRot();
 
 /* clock */
+/* setup dropdown: none, A … Z, AA … CZ (the slate code holds 2 digits: 00 none, 01-96) */
+function setupOptions(cur){var el=$("su"),h='<option value="">—</option>';
+  for(var i=1;i<=SETUP_MAX;i++)h+="<option>"+nToSu(i)+"</option>";
+  if(cur&&!(suToN(cur)>=1&&suToN(cur)<=SETUP_MAX))h+="<option>"+esc(cur)+"</option>";   // an older slate past CZ stays selectable
+  el.innerHTML=h}
 var D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-function tick(){var d=new Date();$("cDate").textContent=D[d.getDay()]+" "+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());$("cTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
-setInterval(function(){if(!$("slate").hidden)tick()},1000);
+function tick(d){d=d instanceof Date?d:new Date();$("cDate").textContent=D[d.getDay()]+" "+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());$("cTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
+/* tick exactly on each new second, so the top clock and the sync QR / big time never disagree */
+(function sec(){if(!$("slate").hidden)tick();setTimeout(sec,1000-new Date().getMilliseconds()+5)})();
 
 /* keep screen awake on the slate */
 var lock=null;
 function wake(){try{if(navigator.wakeLock&&!lock)navigator.wakeLock.request("screen").then(function(l){lock=l;l.addEventListener&&l.addEventListener("release",function(){lock=null})}).catch(function(){})}catch(e){}}
 function release(){try{if(lock)lock.release();}catch(e){}lock=null}
-document.addEventListener("visibilitychange",function(){if(!document.hidden){checkNewDay();if(!$("slate").hidden)wake()}});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!$("slate").hidden)wake()});
 
 /* offline: cache the app on the phone (GitHub Pages / any https host) */
 if("serviceWorker" in navigator&&location.protocol==="https:"){try{navigator.serviceWorker.register("sw.js").catch(function(){})}catch(e){}}
 
-goHome();checkNewDay();
+$("stVer").textContent="v"+APP_VERSION;goForm();
 })();
 </script>
 </body>
