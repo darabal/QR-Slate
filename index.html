@@ -62,7 +62,7 @@ button{cursor:pointer}
 /* slate row: scene = marker dropdown + number; marker and setup are compact dropdowns */
 .slategrid{display:grid;grid-template-columns:58px minmax(0,1fr) 68px 58px;gap:8px}
 .scrow{display:flex;gap:4px}
-.field .scrow select{flex:0 0 58px}.field .scrow input{flex:1 1 auto}
+.field .scrow select{flex:0 0 68px}.field .scrow input{flex:1 1 auto}
 .field select.tight{font-size:26px;padding:10px 18px 10px 8px;background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%}
 .grid3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 .grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
@@ -109,8 +109,9 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .slatelegend{display:flex;align-items:baseline;gap:8px;min-width:0;font-size:13px;color:var(--ink2)}
 .slatelegend .sep{color:var(--mute)}
 /* the slate as it will read: plain text, not a field; about 10% bigger than the field values */
-.preview{font-family:var(--f-display);font-weight:700;font-size:38px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.preview{font-family:var(--f-display);font-weight:700;font-size:29px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
 .preview .ptk{color:var(--accent)}
+.mk{opacity:.5}   /* scene marker (X, A, XA…) reads dimmer than the scene number */
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
 .primary.corr{background:var(--corr)}
@@ -178,9 +179,9 @@ span.tk{cursor:default}
 
 /* ---------- SLATE ---------- */
 #slate{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-inline:14px;gap:6px;border:0 solid var(--corr);
-  --qr:min(calc(100vw - 28px),50vh); --id:min(22vw,12vh)}
+  --qr:min(calc(100vw - 28px),50vh); --id:min(28vw,14vh)}
 @media (max-height:720px){#slate{--qr:min(calc(100vw - 28px),47vh);--id:min(20vw,9.5vh)} #slate.has-take{--id:min(17vw,9vh)}}
-#slate.has-take{--id:min(18vw,11vh)}
+#slate.has-take{--id:min(24vw,13vh)}
 #slate.is-corr{border-width:8px;padding-inline:8px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .topbar .l{display:flex;align-items:center;gap:10px;min-width:0}
@@ -465,6 +466,9 @@ var noteOpen=false;
 function takeDefault(use){return use==="witness_cam"?1:null}
 
 /* A slate value: {ep,sc,su,tk,use,obj,cam,note}; tk may be null. (Take notes were dropped in v6; old ones are still shown in the day log.) */
+/* slate ID as HTML with the scene marker dimmed: 3_<span class="mk">XA</span>38B */
+function idHtml(v){var m=/^(X?[ABC]?)(\d.*)$/.exec(v.sc||"");if(!m||!m[1])return esc(slateId(v));
+  return esc(v.ep?v.ep+"_":"")+'<span class="mk">'+m[1]+'</span>'+esc(m[2]+(v.use==="scene_ref"?"":v.su))}
 function slateId(v){return (v.ep?v.ep+"_":"")+v.sc+(v.use==="scene_ref"?"":v.su)}   // episode is optional
 /* shooting day as one code: B01D56 (block 01, day 56); either part may be missing */
 function dayCode(d){return (d.block?"B"+pad(+d.block,2):"")+(d.day?"D"+pad(+d.day,2):"")}
@@ -577,8 +581,7 @@ function syncForm(){
   $("su").disabled=sr;
   $("form").classList.toggle("is-corr",!!fixing);
   $("fixing").hidden=!fixing;
-  var id=(v.ep?v.ep+"_":"")+(v.sc||"?")+v.su,dc=dayInfoText(DAY);
-  $("formPreview").innerHTML=esc(id)+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'');
+  $("formPreview").innerHTML=(v.sc?idHtml(v):esc((v.ep?v.ep+"_":"")+"?"+v.su))+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'');
   $("conflict").hidden=true;$("make").hidden=false;
   var ne=noteEdit&&!fixing&&keyOf(v)===keyOf(S);
   $("noteBar").hidden=!(noteEdit&&!fixing);$("noteBarWhat").textContent=slateId(S)+" · "+useLabel(S);
@@ -840,7 +843,7 @@ function renderSlate(){
   $("takeCell").hidden=!takeText;$("takeDiv").hidden=!takeText;
   $("corrBanner").hidden=!c;$("backCur").hidden=!c;
   if(c)$("corrText").textContent="WAS "+c.wasLabel;
-  $("bigId").textContent=slateId(v);
+  $("bigId").innerHTML=idHtml(v);
   $("bigTake").textContent=takeText;
   var rl=!c&&!pv&&v.roll>1,rh=!c&&!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
   $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
@@ -855,8 +858,15 @@ function renderSlate(){
   $("suDown").disabled=!!pv||(!c&&(sr||!S.su));$("suUp").disabled=!!pv||(!c&&sr);
   $("tkDown").disabled=pv?pv.n<=1:(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null));
   $("slate").classList.toggle("is-sync",!!SYNC);$("syncBanner").hidden=$("syncTime").hidden=$("syncDone").hidden=!SYNC;
+  fitId();
   if(SYNC)syncFrame(true);else drawQR(payload(v,t,c,!!pv),!!c);tick();
 }
+/* a long slate (12_XA38CZ · 99) shrinks to fit the width instead of running off the screen */
+function fitId(){var a=$("bigId"),b=$("bigTake"),row=a.parentNode.parentNode;a.style.fontSize=b.style.fontSize="";
+  var avail=row.parentNode.clientWidth,g=parseFloat(getComputedStyle(row).columnGap)||0,
+      w=a.scrollWidth+($("takeCell").hidden?0:b.scrollWidth+$("takeDiv").offsetWidth+g*2);
+  if(avail>0&&w>avail){var f=parseFloat(getComputedStyle(a).fontSize)*(avail-g*2)/(w-g*2)*.96;a.style.fontSize=b.style.fontSize=f+"px"}}
+try{document.fonts.ready.then(function(){if(!$("slate").hidden)fitId()})}catch(e){}
 $("backCur").onclick=function(){shown=null;renderSlate()};
 /* "Slate previous take": a slate-only clip that labels the clip before it. Take -/+ pick the missed take; Done moves on. */
 var prev=null;
