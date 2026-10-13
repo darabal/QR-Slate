@@ -572,6 +572,8 @@ function syncForm(){
   var mkOn=!!$("mk").value||mkOpen;$("mkWrap").hidden=!mkOn;$("addMk").textContent=mkOn?"Remove marker":"Add marker";$("addMk").setAttribute("aria-label",mkOn?"Remove the scene marker":"Add a scene marker (X, A, B, C)");
   var whole=fixing&&fixing.tk==null;
   $("tkWrap").style.visibility=whole?"hidden":"";
+  var noTk=!fixing&&$("use").value==="photogrammetry";   // a scan has no takes
+  $("tk").disabled=noTk;if(noTk)$("tk").value="";
   var v=readForm(),sr=v.use==="scene_ref",wit=v.use==="witness_cam";
   $("tk").placeholder=wit?"1":"—";
   $("customWrap").hidden=$("use").value!=="__custom";
@@ -857,7 +859,8 @@ function renderSlate(){
   $("stamp").textContent=dayInfoText(DAY);$("stamp").hidden=!dayInfoText(DAY);
   var sr=S.use==="scene_ref",wit=S.use==="witness_cam";
   $("suDown").disabled=!!pv||(!c&&(sr||!S.su));$("suUp").disabled=!!pv||(!c&&sr);
-  $("tkDown").disabled=pv?pv.n<=1:(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null));
+  var pg=!c&&S.use==="photogrammetry";$("tkUp").disabled=pg;
+  $("tkDown").disabled=pv?pv.n<=1:(pg||(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null)));
   $("slate").classList.toggle("is-sync",!!SYNC);$("syncBanner").hidden=$("syncTime").hidden=$("syncDone").hidden=!SYNC;
   fitId();
   if(SYNC)syncFrame(true);else drawQR(payload(v,t,c,!!pv),!!c);tick();
@@ -912,7 +915,7 @@ function landOn(su){
 }
 $("suUp").onclick=function(){if(prev)return;bump(function(){return S.use!=="scene_ref"},function(){landOn(nToSu(suToN(S.su)+1))})};
 $("suDown").onclick=function(){if(prev)return;bump(function(){return S.use!=="scene_ref"&&!!S.su},function(){landOn(nToSu(suToN(S.su)-1))})};
-$("tkUp").onclick=function(){if(prev)return;bump(function(){return true},function(){S.tk=S.tk==null?1:S.tk+1})};
+$("tkUp").onclick=function(){if(prev)return;bump(function(){return S.use!=="photogrammetry"},function(){S.tk=S.tk==null?1:S.tk+1})};
 $("tkDown").onclick=function(){if(prev)return;bump(function(){return S.use==="witness_cam"?(S.tk!=null&&S.tk>1):S.tk!=null},
   function(){S.tk=S.tk<=1?null:S.tk-1})};
 $("editBtn").onclick=function(){shown=null;fixing=null;noteEdit=false;goForm()};
