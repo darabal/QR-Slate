@@ -113,7 +113,6 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 /* the slate as it will read: plain text, not a field; about 10% bigger than the field values */
 .preview{font-family:var(--f-display);font-weight:700;font-size:29px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
 .preview .ptk{color:var(--accent)}
-#mk{color:var(--mute);border-color:#222725;background-color:#131615}   /* scene marker dropdown: dimmer than the fields around it */
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
 .primary.corr{background:var(--corr)}
@@ -329,7 +328,7 @@ span.tk{cursor:default}
       <div class="field"><label for="su">Setup</label><select id="su" class="tight"></select></div>
       <div class="field" id="tkWrap"><label for="tk">Take</label><input id="tk" inputmode="numeric" placeholder="—"></div>
     </div>
-    <button type="button" class="ghost addnote addmk" id="addMk" aria-label="Add a scene marker (X, A, B, C)">+ Marker</button>
+    <button type="button" class="ghost addnote addmk" id="addMk" aria-label="Add a scene marker (X, A, B, C)">Add marker</button>
   </fieldset>
 
   <fieldset>
@@ -570,7 +569,7 @@ function syncNotes(){
   $("count").textContent=n+"/"+NOTE_MAX;$("count").classList.toggle("full",n>=NOTE_MAX);
 }
 function syncForm(){
-  var mkOn=!!$("mk").value||mkOpen;$("mkWrap").hidden=!mkOn;$("addMk").textContent=mkOn?"\u2212 Remove marker":"+ Marker";$("addMk").setAttribute("aria-label",mkOn?"Remove the scene marker":"Add a scene marker (X, A, B, C)");
+  var mkOn=!!$("mk").value||mkOpen;$("mkWrap").hidden=!mkOn;$("addMk").textContent=mkOn?"Remove marker":"Add marker";$("addMk").setAttribute("aria-label",mkOn?"Remove the scene marker":"Add a scene marker (X, A, B, C)");
   var whole=fixing&&fixing.tk==null;
   $("tkWrap").style.visibility=whole?"hidden":"";
   var v=readForm(),sr=v.use==="scene_ref",wit=v.use==="witness_cam";
