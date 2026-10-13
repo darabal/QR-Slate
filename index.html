@@ -26,6 +26,7 @@
   --line:#2a2f2d;
   --ink:#eef1ee;
   --mute:#8a938f;
+  --ink2:#c3cac6;          /* field labels: brighter than mute so they read on set */
   --chalk:#f6f6f2;        /* QR paper */
   --accent:#d9e021;       /* marker yellow, as on slate tape */
   --corr:#ff6a2b;         /* correction */
@@ -59,7 +60,7 @@ button{cursor:pointer}
 .iconbtn{width:38px;height:34px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
 .iconbtn svg{width:20px;height:20px}
 /* slate row: scene = marker dropdown + number; marker and setup are compact dropdowns */
-.slategrid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2fr) minmax(0,.9fr) minmax(0,.9fr);gap:8px}
+.slategrid{display:grid;grid-template-columns:58px minmax(0,1fr) 68px 58px;gap:8px}
 .scrow{display:flex;gap:4px}
 .field .scrow select{flex:0 0 58px}.field .scrow input{flex:1 1 auto}
 .field select.tight{font-size:26px;padding:10px 18px 10px 8px;background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%}
@@ -91,7 +92,7 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px
 legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:10px;padding:0}
 .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .field{display:flex;flex-direction:column;gap:6px;min-width:0}
-.field label{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
+.field label{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);display:flex;justify-content:space-between;gap:8px}
 .field input,.field select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 10px;font-family:var(--f-display);font-size:26px;font-weight:600;letter-spacing:.02em;min-width:0}
 .field input.small{font-size:22px}
 .field textarea{width:100%;min-height:64px;resize:vertical;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:16px;line-height:1.4}
@@ -105,10 +106,10 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .notewarn p{margin:0;font-size:14px;line-height:1.45}
 .notewarn .btns{display:flex;gap:8px}.notewarn .act{flex:1}
 .count.full{color:var(--corr)}
-.slatelegend{display:flex;align-items:baseline;gap:8px;min-width:0}
+.slatelegend{display:flex;align-items:baseline;gap:8px;min-width:0;font-size:13px;color:var(--ink2)}
 .slatelegend .sep{color:var(--mute)}
 /* the slate as it will read: plain text, not a field; about 10% bigger than the field values */
-.preview{font-family:var(--f-display);font-weight:700;font-size:29px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.preview{font-family:var(--f-display);font-weight:700;font-size:38px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
 .preview .ptk{color:var(--accent)}
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
@@ -320,7 +321,7 @@ span.tk{cursor:default}
   <fieldset>
     <legend class="slatelegend">Slate<span class="sep" aria-hidden="true">·</span><span class="preview" id="formPreview" aria-live="polite"></span></legend>
     <div class="slategrid">
-      <div class="field"><label for="ep">Episode</label><input id="ep" inputmode="numeric" placeholder="3"></div>
+      <div class="field"><label for="ep">Ep</label><input id="ep" inputmode="numeric" placeholder="3"></div>
       <div class="field"><label for="sc">Scene</label><div class="scrow"><select id="mk" class="tight" aria-label="Scene marker"><option value="">—</option><option>X</option><option>A</option><option>B</option><option>C</option><option>XA</option><option>XB</option><option>XC</option></select><input id="sc" inputmode="numeric" placeholder="21" maxlength="3"></div></div>
       <div class="field"><label for="su">Setup</label><select id="su" class="tight"></select></div>
       <div class="field" id="tkWrap"><label for="tk">Take</label><input id="tk" inputmode="numeric" placeholder="—"></div>
