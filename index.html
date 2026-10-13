@@ -63,7 +63,7 @@ button{cursor:pointer}
 .scrow{display:flex;gap:4px}
 .field .scrow select{flex:0 0 58px}.field .scrow input{flex:1 1 auto}
 .field select.tight{font-size:26px;padding:10px 18px 10px 8px;background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%}
-.grid3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:8px}
+.grid3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 .grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 #form{gap:16px;padding-block:14px 0;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
 .formfoot{margin-top:auto;position:sticky;bottom:0;background:var(--ground);display:flex;flex-direction:column;gap:12px;padding-block:10px 16px;z-index:3}
@@ -105,11 +105,11 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .notewarn p{margin:0;font-size:14px;line-height:1.45}
 .notewarn .btns{display:flex;gap:8px}.notewarn .act{flex:1}
 .count.full{color:var(--corr)}
-.preview{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.preview .pid{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;letter-spacing:.02em;overflow-wrap:anywhere}
-.preview .pid .ptk{color:var(--accent)}
-.preview .pmeta{font-family:var(--f-mono);font-size:13px;color:var(--mute);overflow-wrap:anywhere}
-.preview .pmeta b{color:var(--ink);font-weight:600}
+.slatelegend{display:flex;align-items:baseline;gap:8px;min-width:0}
+.slatelegend .sep{color:var(--mute)}
+/* the slate as it will read: plain text, not a field; about 10% bigger than the field values */
+.preview{font-family:var(--f-display);font-weight:700;font-size:29px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.preview .ptk{color:var(--accent)}
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
 .primary.corr{background:var(--corr)}
@@ -291,8 +291,7 @@ span.tk{cursor:default}
   <fieldset>
     <legend>Shooting day</legend>
     <div class="grid3">
-      <div class="field"><label for="block">Block</label><input id="block" inputmode="numeric" placeholder="01" maxlength="2"></div>
-      <div class="field"><label for="day">Day</label><input id="day" inputmode="numeric" placeholder="56" maxlength="3"></div>
+      <div class="field"><label for="dayc">Block · day</label><input id="dayc" placeholder="B01D56" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="8"></div>
       <div class="field"><label for="unit">Unit</label>
         <select id="unit">
           <option value="main">Main</option>
@@ -305,10 +304,8 @@ span.tk{cursor:default}
     </div>
   </fieldset>
 
-  <div class="preview" id="formPreview" aria-live="polite"></div>
-
   <fieldset>
-    <legend>Slate</legend>
+    <legend class="slatelegend">Slate<span class="sep" aria-hidden="true">·</span><span class="preview" id="formPreview" aria-live="polite"></span></legend>
     <div class="slategrid">
       <div class="field"><label for="ep">Episode</label><input id="ep" inputmode="numeric" placeholder="3"></div>
       <div class="field"><label for="sc">Scene</label><div class="scrow"><select id="mk" class="tight" aria-label="Scene marker"><option value="">—</option><option>X</option><option>A</option><option>B</option><option>C</option><option>XA</option><option>XB</option><option>XC</option></select><input id="sc" inputmode="numeric" placeholder="21" maxlength="3"></div></div>
@@ -537,7 +534,7 @@ function fillForm(v,tk){
   $("custom").value=preset?"":v.use;$("obj").value=v.obj||"";
   $("note").value=v.note||"";noteOpen=!!v.note;$("noteWarn").hidden=true;
   $("err").hidden=true;
-  $("day").value=DAY.day||"";$("block").value=DAY.block||"";$("unit").value=UNITS[DAY.unit]?DAY.unit:"";
+  if(document.activeElement!==$("dayc"))$("dayc").value=dayCode(DAY);$("unit").value=UNITS[DAY.unit]?DAY.unit:"";
   syncForm();
 }
 function readForm(){
@@ -567,8 +564,7 @@ function syncForm(){
   $("form").classList.toggle("is-corr",!!fixing);
   $("fixing").hidden=!fixing;
   var id=(v.ep?v.ep+"_":"")+(v.sc||"?")+v.su,dc=dayInfoText(DAY);
-  $("formPreview").innerHTML='<span class="pid">'+esc(id)+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'')+'</span>'+
-    '<span class="pmeta"><b>'+esc(useName(v.use||"?"))+(v.obj?" · "+esc(v.obj):"")+'</b>'+(dc?" · "+esc(dc):"")+'</span>';
+  $("formPreview").innerHTML=esc(id)+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'');
   $("conflict").hidden=true;$("make").hidden=false;
   var ne=noteEdit&&!fixing&&keyOf(v)===keyOf(S);
   $("noteBar").hidden=!(noteEdit&&!fixing);$("noteBarWhat").textContent=slateId(S)+" · "+useLabel(S);
@@ -592,8 +588,13 @@ $("noteNo").onclick=function(){$("noteWarn").hidden=true;syncForm()};
 $("fixCancel").onclick=function(){fixing=null;openHistory(histFrom)};
 $("formHist").onclick=function(){openHistory("form")};
 /* day, block and unit are saved as soon as they change */
-function readDay(){DAY={day:$("day").value.replace(/\D/g,"").replace(/^0+(?=\d)/,""),block:$("block").value.replace(/\D/g,"").replace(/^0+(?=\d)/,""),unit:$("unit").value};store.set("dayinfo",DAY);syncForm()}
-["day","block"].forEach(function(id){$(id).addEventListener("input",readDay)});$("unit").addEventListener("change",readDay);
+/* block and day are typed as one code: B01D56, B1D56, D56 or B02 */
+function parseDay(t){t=String(t||"").toUpperCase();var b=/B\s*0*(\d{1,2})/.exec(t),d=/D\s*0*(\d{1,3})/.exec(t);
+  if(!b&&!d&&/^\s*\d+\s*$/.test(t))d=[0,String(+t)];   // a bare number is the day
+  return{block:b?String(+b[1]):"",day:d?String(+d[1]):""}}
+function readDay(){var x=parseDay($("dayc").value);DAY={day:x.day,block:x.block,unit:$("unit").value};store.set("dayinfo",DAY);syncForm()}
+$("dayc").addEventListener("input",readDay);$("unit").addEventListener("change",readDay);
+$("dayc").addEventListener("blur",function(){$("dayc").value=dayCode(DAY)});   // tidy to B01D56
 
 $("form").addEventListener("submit",function(e){
   e.preventDefault();
