@@ -103,7 +103,7 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none}
 .count{font-variant-numeric:tabular-nums}
 .addnote{align-self:flex-start}
-.addmk{font-size:10px;padding:4px 8px;letter-spacing:.06em}
+.addmk{font-size:12px;padding:6px 12px;letter-spacing:.06em}
 .notewarn{border:1px solid var(--corr);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
 .notewarn p{margin:0;font-size:14px;line-height:1.45}
 .notewarn .btns{display:flex;gap:8px}.notewarn .act{flex:1}
@@ -570,7 +570,7 @@ function syncNotes(){
   $("count").textContent=n+"/"+NOTE_MAX;$("count").classList.toggle("full",n>=NOTE_MAX);
 }
 function syncForm(){
-  $("mkWrap").hidden=!$("mk").value&&!mkOpen;$("addMk").hidden=!$("mkWrap").hidden;
+  var mkOn=!!$("mk").value||mkOpen;$("mkWrap").hidden=!mkOn;$("addMk").textContent=mkOn?"\u2212 Remove marker":"+ Marker";$("addMk").setAttribute("aria-label",mkOn?"Remove the scene marker":"Add a scene marker (X, A, B, C)");
   var whole=fixing&&fixing.tk==null;
   $("tkWrap").style.visibility=whole?"hidden":"";
   var v=readForm(),sr=v.use==="scene_ref",wit=v.use==="witness_cam";
@@ -597,7 +597,7 @@ function syncForm(){
 $("note").addEventListener("input",syncNotes);
 $("use").addEventListener("change",function(){if(!fixing)$("tk").value="";syncForm();var u=$("use").value;
   if(u==="__custom")$("custom").focus();if(u==="photogrammetry"&&!$("obj").value)$("obj").focus()});
-$("addMk").onclick=function(){mkOpen=true;syncForm();var m=$("mk");try{m.focus();if(m.showPicker)m.showPicker()}catch(e){}};
+$("addMk").onclick=function(){if(!$("mkWrap").hidden){$("mk").value="";mkOpen=false;syncForm();return}mkOpen=true;syncForm();var m=$("mk");try{m.focus();if(m.showPicker)m.showPicker()}catch(e){}};
 $("addNote").onclick=function(){
   $("noteWarnTx").textContent=$("use").value==="set_ref"?"A note switches set_ref from the small QR to the big one. Its squares get smaller and it reads less well from far away."
     :"A note makes the QR denser, so its squares get smaller and it reads less well from far away.";
