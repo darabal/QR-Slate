@@ -200,8 +200,9 @@ span.tk{cursor:default}
 .bigid,.bigtake{font-family:var(--f-display);font-weight:700;font-size:var(--id);line-height:1;letter-spacing:.01em;font-variant-numeric:tabular-nums;white-space:nowrap;padding-bottom:.06em}
 .bigtake{color:var(--accent)}
 .divider{width:2px;align-self:stretch;background:var(--line);margin-block:14px 6px}
-.usage{font-family:var(--f-display);font-size:calc(var(--id) * .5);line-height:1;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);overflow-wrap:anywhere;margin-top:2px}
+.usage{font-family:var(--f-display);font-size:calc(var(--id) * .5);line-height:1;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);overflow-wrap:normal;margin-top:2px}
 .usage .obj{color:var(--ink)}
+.usage .nw{white-space:nowrap}
 .sub{font-family:var(--f-mono);font-size:13px;color:var(--mute);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sub .cam{color:var(--ink)}
 .notebtn{display:inline-flex;align-items:center;gap:8px;max-width:100%;min-width:0;background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-family:var(--f-mono);font-size:13px;color:var(--ink)}
@@ -850,7 +851,7 @@ function renderSlate(){
   $("bigTake").textContent=takeText;
   var rl=!c&&!pv&&v.roll>1,rh=!c&&!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
   $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
-  $("bigUse").innerHTML=esc(useName(v.use).replace(/_/g," "))+(v.obj?' · <span class="obj">'+esc(v.obj)+'</span>':'');
+  $("bigUse").innerHTML=esc(useName(v.use).replace(/_/g," "))+(v.obj?' <span class="nw">· <span class="obj">'+esc(v.obj)+'</span></span>':'');
   var sub=[];if(v.cam)sub.push('<span class="cam">'+esc(v.cam)+'</span>');
   $("bigSub").innerHTML=sub.join(" · ");$("bigSub").hidden=!sub.length;
   $("noteBtn").hidden=!!c||v.use==="hdri"||v.use==="witness_cam";
@@ -869,7 +870,9 @@ function renderSlate(){
 function fitId(){var a=$("bigId"),b=$("bigTake"),row=a.parentNode.parentNode;a.style.fontSize=b.style.fontSize="";
   var avail=row.parentNode.clientWidth,g=parseFloat(getComputedStyle(row).columnGap)||0,
       w=a.scrollWidth+($("takeCell").hidden?0:b.scrollWidth+$("takeDiv").offsetWidth+g*2);
-  if(avail>0&&w>avail){var f=parseFloat(getComputedStyle(a).fontSize)*(avail-g*2)/(w-g*2)*.96;a.style.fontSize=b.style.fontSize=f+"px"}}
+  if(avail>0&&w>avail){var f=parseFloat(getComputedStyle(a).fontSize)*(avail-g*2)/(w-g*2)*.96;a.style.fontSize=b.style.fontSize=f+"px"}
+  var u=$("bigUse");u.style.fontSize="";   // a long word (photogrammetry) shrinks to fit rather than breaking mid-word
+  if(u.clientWidth>0&&u.scrollWidth>u.clientWidth)u.style.fontSize=parseFloat(getComputedStyle(u).fontSize)*u.clientWidth/u.scrollWidth*.97+"px"}
 try{document.fonts.ready.then(function(){if(!$("slate").hidden)fitId()})}catch(e){}
 $("backCur").onclick=function(){shown=null;renderSlate()};
 /* "Slate previous take": a slate-only clip that labels the clip before it. Take -/+ pick the missed take; Done moves on. */
