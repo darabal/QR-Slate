@@ -55,7 +55,7 @@ button{cursor:pointer}
 .head h1{font-size:30px}
 .head h1 span{color:var(--accent)}
 .head h2{font-size:28px}
-.head .r{display:flex;gap:6px}
+.head .r{display:flex;gap:6px;align-items:center}
 .head .lft{display:flex;align-items:center;gap:10px;min-width:0}
 .iconbtn{width:38px;height:34px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
 .iconbtn svg{width:20px;height:20px}
@@ -293,7 +293,7 @@ span.tk{cursor:default}
 
 <!-- ============ FORM ============ -->
 <form id="form" class="page" autocomplete="off" novalidate hidden>
-  <div class="head"><div class="lft"><h1>QR <span>Slate</span></h1></div><div class="r"><span class="ver" id="stVer"></span><button type="button" class="ghost" id="formHist" hidden>Slates</button></div></div>
+  <div class="head"><div class="lft"><h1>QR <span>Slate</span></h1></div><div class="r"><span class="ver" id="stVer"></span><button type="button" class="ghost" id="formHist" hidden>Slates</button><button type="button" class="ghost" id="formSync">Sync</button></div></div>
 
   <div class="fixing notebar" id="noteBar" hidden>
     <div class="t"><strong>Edit note</strong><span id="noteBarWhat"></span></div>
@@ -896,8 +896,10 @@ function syncFrame(force){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hid
   if(force||txt!==syncShown){syncShown=txt;drawQR(txt,false);tick(d);   // top clock changes on the same frame as the QR
     $("syncTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
   syncRAF=requestAnimationFrame(function(){syncFrame(false)})}
-$("syncBtn").onclick=function(){if(shown||prev)return;SYNC=true;renderSlate()};
-$("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);renderSlate()};
+$("syncBtn").onclick=function(){if(shown||prev)return;syncFromForm=false;SYNC=true;renderSlate()};
+var syncFromForm=false;   // Sync opened from the form: Done goes back to the form as it was
+$("formSync").onclick=function(){shown=null;syncFromForm=true;SYNC=true;show("slate");renderSlate()};
+$("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);if(syncFromForm){syncFromForm=false;show("form")}else renderSlate()};
 /* Rehearsal: the next clip on this take is a rehearsal (slate code flag 2). Counted on the take in the day log; ends on the next step. */
 $("rehBtn").onclick=function(){
   if(S.tk==null||shown||prev)return;
