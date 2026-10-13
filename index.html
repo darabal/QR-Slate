@@ -103,6 +103,7 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none}
 .count{font-variant-numeric:tabular-nums}
 .addnote{align-self:flex-start}
+.addmk{font-size:10px;padding:4px 8px;letter-spacing:.06em}
 .notewarn{border:1px solid var(--corr);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
 .notewarn p{margin:0;font-size:14px;line-height:1.45}
 .notewarn .btns{display:flex;gap:8px}.notewarn .act{flex:1}
@@ -328,7 +329,7 @@ span.tk{cursor:default}
       <div class="field"><label for="su">Setup</label><select id="su" class="tight"></select></div>
       <div class="field" id="tkWrap"><label for="tk">Take</label><input id="tk" inputmode="numeric" placeholder="—"></div>
     </div>
-    <button type="button" class="ghost addnote" id="addMk">+ Scene marker (X, A, B, C)</button>
+    <button type="button" class="ghost addnote addmk" id="addMk" aria-label="Add a scene marker (X, A, B, C)">+ Marker</button>
   </fieldset>
 
   <fieldset>
