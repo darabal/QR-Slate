@@ -58,6 +58,11 @@ button{cursor:pointer}
 .head .lft{display:flex;align-items:center;gap:10px;min-width:0}
 .iconbtn{width:38px;height:34px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
 .iconbtn svg{width:20px;height:20px}
+/* slate row: scene = marker dropdown + number; marker and setup are compact dropdowns */
+.slategrid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2fr) minmax(0,.9fr) minmax(0,.9fr);gap:8px}
+.scrow{display:flex;gap:4px}
+.field .scrow select{flex:0 0 58px}.field .scrow input{flex:1 1 auto}
+.field select.tight{font-size:26px;padding:10px 18px 10px 8px;background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%}
 .grid3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:8px}
 .grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 #form{gap:16px;padding-block:14px 0;min-height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
@@ -95,9 +100,16 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .field input::placeholder,.field textarea::placeholder{color:#4a514e}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none}
 .count{font-variant-numeric:tabular-nums}
+.addnote{align-self:flex-start}
+.notewarn{border:1px solid var(--corr);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+.notewarn p{margin:0;font-size:14px;line-height:1.45}
+.notewarn .btns{display:flex;gap:8px}.notewarn .act{flex:1}
 .count.full{color:var(--corr)}
-.preview{font-family:var(--f-mono);font-size:13px;color:var(--mute);overflow-wrap:anywhere}
-.preview b{color:var(--ink);font-weight:600}
+.preview{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.preview .pid{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;letter-spacing:.02em;overflow-wrap:anywhere}
+.preview .pid .ptk{color:var(--accent)}
+.preview .pmeta{font-family:var(--f-mono);font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+.preview .pmeta b{color:var(--ink);font-weight:600}
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
 .primary.corr{background:var(--corr)}
@@ -165,15 +177,15 @@ span.tk{cursor:default}
 
 /* ---------- SLATE ---------- */
 #slate{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-inline:14px;gap:6px;border:0 solid var(--corr);
-  --qr:min(90vw,40vh); --id:min(22vw,12vh)}
-@media (max-height:720px){#slate{--qr:min(92vw,47vh);--id:min(20vw,9.5vh)} #slate.has-take{--id:min(17vw,9vh)} #slate .stamp{display:none}}
+  --qr:min(calc(100vw - 28px),50vh); --id:min(22vw,12vh)}
+@media (max-height:720px){#slate{--qr:min(calc(100vw - 28px),47vh);--id:min(20vw,9.5vh)} #slate.has-take{--id:min(17vw,9vh)}}
 #slate.has-take{--id:min(18vw,11vh)}
 #slate.is-corr{border-width:8px;padding-inline:8px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .topbar .l{display:flex;align-items:center;gap:10px;min-width:0}
 .clock{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.clock .d{font-size:11px;color:var(--mute)}
-.clock .t{font-size:20px;font-weight:600}
+.clock .d{font-size:15px;color:var(--mute);letter-spacing:.02em}
+.clock .t{font-size:32px;font-weight:600;line-height:1.05}
 .corr-banner{background:var(--corr);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
 .corr-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px;overflow-wrap:anywhere}
 .qrwrap{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
@@ -200,7 +212,7 @@ span.tk{cursor:default}
 .conflict .what b{font-family:var(--f-display);font-size:19px;letter-spacing:.03em}
 .conflict .what i{color:var(--mute)}
 .conflict .act{font-size:16px;padding:12px 4px;letter-spacing:.04em;line-height:1.1}
-.stamp{font-family:var(--f-mono);font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+.stamp{font-family:var(--f-mono);font-size:15px;letter-spacing:.06em;color:var(--mute);font-variant-numeric:tabular-nums}
 #slate.is-prev{border:8px solid var(--prev);padding-inline:8px}
 .prev-banner{background:var(--prev);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
 .prev-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px}
@@ -264,7 +276,7 @@ span.tk{cursor:default}
 
 <!-- ============ FORM ============ -->
 <form id="form" class="page" autocomplete="off" novalidate hidden>
-  <div class="head"><div class="lft"><h1>QR <span>Slate</span></h1></div><div class="r"><span class="ver" id="stVer"></span><button type="button" class="ghost" id="formHist">Slates</button></div></div>
+  <div class="head"><div class="lft"><h1>QR <span>Slate</span></h1></div><div class="r"><span class="ver" id="stVer"></span><button type="button" class="ghost" id="formHist" hidden>Slates</button></div></div>
 
   <div class="fixing notebar" id="noteBar" hidden>
     <div class="t"><strong>Edit note</strong><span id="noteBarWhat"></span></div>
@@ -279,47 +291,42 @@ span.tk{cursor:default}
   <fieldset>
     <legend>Shooting day</legend>
     <div class="grid3">
-      <div class="field"><label for="day">Day</label><input id="day" inputmode="numeric" placeholder="12" maxlength="3"></div>
-      <div class="field"><label for="block">Block</label><input id="block" inputmode="numeric" placeholder="—" maxlength="1"></div>
+      <div class="field"><label for="block">Block</label><input id="block" inputmode="numeric" placeholder="01" maxlength="2"></div>
+      <div class="field"><label for="day">Day</label><input id="day" inputmode="numeric" placeholder="56" maxlength="3"></div>
       <div class="field"><label for="unit">Unit</label>
         <select id="unit">
           <option value="main">Main</option>
           <option value="second">Second</option>
           <option value="splinter">Splinter</option>
           <option value="vfx">VFX</option>
+          <option value="other">Other</option>
           <option value="">—</option>
         </select></div>
     </div>
   </fieldset>
 
+  <div class="preview" id="formPreview" aria-live="polite"></div>
+
   <fieldset>
     <legend>Slate</legend>
-    <div class="grid4">
+    <div class="slategrid">
       <div class="field"><label for="ep">Episode</label><input id="ep" inputmode="numeric" placeholder="3"></div>
-      <div class="field"><label for="sc">Scene</label><input id="sc" inputmode="text" placeholder="21"></div>
-      <div class="field"><label for="su">Setup</label><input id="su" placeholder="—" autocapitalize="characters" maxlength="3"></div>
+      <div class="field"><label for="sc">Scene</label><div class="scrow"><select id="mk" class="tight" aria-label="Scene marker"><option value="">—</option><option>X</option><option>A</option><option>B</option><option>C</option><option>XA</option><option>XB</option><option>XC</option></select><input id="sc" inputmode="numeric" placeholder="21" maxlength="3"></div></div>
+      <div class="field"><label for="su">Setup</label><select id="su" class="tight"></select></div>
       <div class="field" id="tkWrap"><label for="tk">Take</label><input id="tk" inputmode="numeric" placeholder="—"></div>
     </div>
-    <div class="preview" id="formPreview">Slate <b>—</b></div>
   </fieldset>
 
   <fieldset>
-    <div class="grid2">
     <div class="field">
       <label for="use">Usage</label>
       <select id="use">
         <option value="set_ref">set_ref</option>
         <option value="hdri">hdri</option>
         <option value="photogrammetry">photogrammetry</option>
-        <option value="scene_ref">scene_ref — whole scene</option>
-        <option value="witness_cam">witness_cam — video</option>
+        <option value="witness_cam">witness</option>
         <option value="__custom">custom…</option>
       </select>
-    </div>
-    <div class="field">
-      <label for="cam">Camera</label>
-      <input id="cam" class="small" placeholder="witness" autocapitalize="none">
-    </div>
     </div>
     <div class="field" id="customWrap" hidden>
       <label for="custom">Custom usage</label>
@@ -328,6 +335,11 @@ span.tk{cursor:default}
     <div class="field" id="objWrap" hidden>
       <label for="obj">Scanned object</label>
       <input id="obj" class="small" placeholder="e.g. hero_chair" autocapitalize="none">
+    </div>
+    <button type="button" class="ghost addnote" id="addNote">+ Add note</button>
+    <div class="notewarn" id="noteWarn" hidden role="alert">
+      <p id="noteWarnTx">A note makes the QR denser, so its squares get smaller and it reads less well from far away.</p>
+      <div class="btns"><button type="button" class="act go" id="noteYes">Add note</button><button type="button" class="act" id="noteNo">Cancel</button></div>
     </div>
     <div class="field" id="noteWrap">
       <label for="note"><span>Note</span><span class="count" id="count">0/300</span></label>
@@ -376,7 +388,7 @@ span.tk{cursor:default}
     <div class="l"><button class="ghost iconbtn rotbtn" id="rotBtn" type="button" aria-label="Turn the slate sideways" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
       <div class="clock"><span class="d" id="cDate"></span><span class="t" id="cTime"></span></div>
     </div>
-    <div class="head"><div class="r"><button class="ghost" id="slateHist" type="button">Slates</button><button class="ghost" id="editBtn" type="button" aria-label="New slate: back to the form">New</button></div></div>
+    <div class="head"><div class="r"><button class="ghost" id="slateHist" type="button" hidden>Slates</button><button class="ghost" id="syncBtn" type="button">Sync</button><button class="ghost" id="editBtn" type="button" aria-label="Back to the slate form">Slate</button></div></div>
   </div>
   <div class="corr-banner" id="corrBanner" hidden>CORRECTION<small id="corrText"></small></div>
   <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it.</small></div>
@@ -397,7 +409,7 @@ span.tk{cursor:default}
   <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
   <div class="synctime" id="syncTime" hidden></div>
   <button type="button" class="backcur syncdone" id="syncDone" hidden>Done</button>
-  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="syncBtn">Sync</button><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
+  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
   <div class="deck">
     <button type="button" id="suDown"><span class="a">−</span><span class="l">Setup</span></button>
     <button type="button" id="suUp"><span class="a">+</span><span class="l">Setup</span></button>
@@ -413,8 +425,10 @@ span.tk{cursor:default}
 "use strict";
 var APP_VERSION="0.12.0";   // major.minor.patch; 1.0 after the first real shooting day
 var NOTE_MAX=300;
-var UNITS={main:"Main unit",second:"Second unit",splinter:"Splinter unit",vfx:"VFX unit"};
-var UNIT_DIGIT={main:1,second:2,splinter:3,vfx:4};   // witness code unit digit; 0 = none
+var UNITS={main:"Main unit",second:"Second unit",splinter:"Splinter unit",vfx:"VFX unit",other:"Other unit"};
+var UNIT_DIGIT={main:1,second:2,splinter:3,vfx:4,other:5};   // slate code unit digit; 0 = none
+var MARKS=["","X","A","B","C","XA","XB","XC"];        // scene marker before the number: X second unit, A/B/C connected scene
+var SETUP_MAX=96;                                      // CZ
 
 /* ---- setup letters: movie alphabet, no I / O. bijective base-24: ""=0, A=1 … Z=24, AA=25 ---- */
 var L="ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -434,12 +448,17 @@ function clean(s){return strip(s).toLowerCase().trim().replace(/[^a-z0-9]+/g,"_"
 function camClean(s){return strip(s).trim().replace(/[^A-Za-z0-9-]+/g,"_").replace(/^_+|_+$/g,"")}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var PRESETS=["set_ref","hdri","photogrammetry","scene_ref","witness_cam"];
+var NOTE_USES=["set_ref","photogrammetry","scene_ref"];   // plus custom usages; hdri and witness have no note
+var noteOpen=false;
 /* witness_cam counts takes from 1; every other usage is one slate per folder, take optional (null) */
 function takeDefault(use){return use==="witness_cam"?1:null}
 
 /* A slate value: {ep,sc,su,tk,use,obj,cam,note}; tk may be null. (Take notes were dropped in v6; old ones are still shown in the day log.) */
-function slateId(v){return v.ep+"_"+v.sc+(v.use==="scene_ref"?"":v.su)}
-function useLabel(v){return v.use+(v.obj?" · "+v.obj:"")+(v.cam?" · "+v.cam:"")}
+function slateId(v){return (v.ep?v.ep+"_":"")+v.sc+(v.use==="scene_ref"?"":v.su)}   // episode is optional
+/* shooting day as one code: B01D56 (block 01, day 56); either part may be missing */
+function dayCode(d){return (d.block?"B"+pad(+d.block,2):"")+(d.day?"D"+pad(+d.day,2):"")}
+function useName(u){return u==="witness_cam"?"witness":u}
+function useLabel(v){return useName(v.use)+(v.obj?" · "+v.obj:"")+(v.cam?" · "+v.cam:"")}
 function idKey(v){return [v.day!=null?v.day:DAY.day,v.ep,v.sc,v.use==="scene_ref"?"":v.su,v.use,v.obj||""].join("|")}   // what the slate says, per shooting day
 function keyOf(v){return idKey(v)}   // one row per slate; the camera is a detail of each take (take.cam overrides slate.cam)
 function effCam(s,k){return (k&&k.cam)||s.cam||""}
@@ -506,16 +525,17 @@ function show(name){["form","history","slate"].forEach(function(n){$(n).hidden=n
 function goForm(){fillForm(S,S.tk);show("form")}
 var toastT=null;
 function toast(msg){$("toast").textContent=msg;$("toast").hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){$("toast").hidden=true},2600)}
-function dayInfoText(d){var a=[];if(d.day)a.push("Day "+d.day);if(d.block)a.push("Block "+d.block);if(d.unit)a.push(unitName(d.unit));return a.join(" · ")}
+function dayInfoText(d){var a=[];if(dayCode(d))a.push(dayCode(d));if(d.unit)a.push(unitName(d.unit));return a.join(" · ")}
 
 /* ---------- form ---------- */
 function fillForm(v,tk){
-  $("ep").value=v.ep;$("sc").value=v.sc;$("su").value=v.su||"";
+  var sm=/^(X?[ABC]?)(\d.*)$/.exec(v.sc||"");$("mk").value=sm?sm[1]:"";$("sc").value=sm?sm[2]:(v.sc||"");
+  setupOptions(v.su||"");$("su").value=v.su||"";
   $("tk").value=tk!=null?tk:"";
-  var preset=PRESETS.indexOf(v.use)>=0;
+  var preset=PRESETS.indexOf(v.use)>=0&&v.use!=="scene_ref";   // scene_ref left the list in 0.12; old slates show as custom
   $("use").value=preset?v.use:"__custom";
   $("custom").value=preset?"":v.use;$("obj").value=v.obj||"";
-  $("cam").value=v.cam||"";$("note").value=v.note||"";
+  $("note").value=v.note||"";noteOpen=!!v.note;$("noteWarn").hidden=true;
   $("err").hidden=true;
   $("day").value=DAY.day||"";$("block").value=DAY.block||"";$("unit").value=UNITS[DAY.unit]?DAY.unit:"";
   syncForm();
@@ -523,11 +543,11 @@ function fillForm(v,tk){
 function readForm(){
   var s=$("use").value,use=s==="__custom"?clean($("custom").value):s;
   var t=parseInt($("tk").value,10);
-  return{ep:$("ep").value.trim(),sc:$("sc").value.trim().toUpperCase(),
+  return{ep:$("ep").value.trim(),sc:$("mk").value+$("sc").value.trim().toUpperCase(),
     su:use==="scene_ref"?"":$("su").value.trim().toUpperCase(),
     tk:t>0?t:takeDefault(use),use:use,obj:use==="photogrammetry"?clean($("obj").value):"",
-    cam:camClean($("cam").value)||(use==="witness_cam"?"witness":""),
-    note:use==="hdri"?"":$("note").value.trim()};
+    cam:"",   // camera names left the form in 0.12
+    note:NOTE_USES.indexOf(use)<0&&PRESETS.indexOf(use)>=0?"":$("note").value.trim()};
 }
 function syncNotes(){
   var a=$("note");if(a.value.length>NOTE_MAX)a.value=a.value.slice(0,NOTE_MAX);
@@ -541,12 +561,14 @@ function syncForm(){
   $("tk").placeholder=wit?"1":"—";
   $("customWrap").hidden=$("use").value!=="__custom";
   $("objWrap").hidden=$("use").value!=="photogrammetry";
-  $("noteWrap").hidden=$("use").value==="hdri";
+  var canNote=$("use").value==="__custom"||NOTE_USES.indexOf($("use").value)>=0;
+  $("noteWrap").hidden=!canNote||!noteOpen;$("addNote").hidden=!canNote||noteOpen||!$("noteWarn").hidden;if(!canNote)$("noteWarn").hidden=true;
   $("su").disabled=sr;
   $("form").classList.toggle("is-corr",!!fixing);
   $("fixing").hidden=!fixing;
-  var id=(v.ep||"?")+"_"+(v.sc||"?")+v.su;
-  $("formPreview").innerHTML="Slate <b>"+esc(id)+"</b>"+(whole?" · all takes":(v.tk!=null?" · take <b>"+v.tk+"</b>":" · no take"))+" · <b>"+esc(useLabel({use:v.use||"?",obj:v.obj,cam:v.cam}))+"</b>";
+  var id=(v.ep?v.ep+"_":"")+(v.sc||"?")+v.su,dc=dayInfoText(DAY);
+  $("formPreview").innerHTML='<span class="pid">'+esc(id)+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'')+'</span>'+
+    '<span class="pmeta"><b>'+esc(useName(v.use||"?"))+(v.obj?" · "+esc(v.obj):"")+'</b>'+(dc?" · "+esc(dc):"")+'</span>';
   $("conflict").hidden=true;$("make").hidden=false;
   var ne=noteEdit&&!fixing&&keyOf(v)===keyOf(S);
   $("noteBar").hidden=!(noteEdit&&!fixing);$("noteBarWhat").textContent=slateId(S)+" · "+useLabel(S);
@@ -556,20 +578,26 @@ function syncForm(){
     $("make").textContent=changed?"Make correction slate":"Save changes";}}
   syncNotes();
 }
-["ep","sc","su","tk","custom","obj","cam"].forEach(function(id){$(id).addEventListener("input",syncForm)});
+["ep","sc","su","tk","custom","obj"].forEach(function(id){$(id).addEventListener("input",syncForm)});
+["mk","su"].forEach(function(id){$(id).addEventListener("change",syncForm)});
 $("note").addEventListener("input",syncNotes);
 $("use").addEventListener("change",function(){if(!fixing)$("tk").value="";syncForm();var u=$("use").value;
   if(u==="__custom")$("custom").focus();if(u==="photogrammetry"&&!$("obj").value)$("obj").focus()});
+$("addNote").onclick=function(){
+  $("noteWarnTx").textContent=$("use").value==="set_ref"?"A note switches set_ref from the small QR to the big one. Its squares get smaller and it reads less well from far away."
+    :"A note makes the QR denser, so its squares get smaller and it reads less well from far away.";
+  $("noteWarn").hidden=false;syncForm();try{$("noteWarn").scrollIntoView({block:"center"})}catch(e){}};
+$("noteYes").onclick=function(){noteOpen=true;$("noteWarn").hidden=true;syncForm();try{$("note").focus()}catch(e){}};
+$("noteNo").onclick=function(){$("noteWarn").hidden=true;syncForm()};
 $("fixCancel").onclick=function(){fixing=null;openHistory(histFrom)};
 $("formHist").onclick=function(){openHistory("form")};
 /* day, block and unit are saved as soon as they change */
-function readDay(){DAY={day:$("day").value.replace(/\D/g,"").replace(/^0+(?=\d)/,""),block:$("block").value.replace(/\D/g,""),unit:$("unit").value};store.set("dayinfo",DAY)}
+function readDay(){DAY={day:$("day").value.replace(/\D/g,"").replace(/^0+(?=\d)/,""),block:$("block").value.replace(/\D/g,"").replace(/^0+(?=\d)/,""),unit:$("unit").value};store.set("dayinfo",DAY);syncForm()}
 ["day","block"].forEach(function(id){$(id).addEventListener("input",readDay)});$("unit").addEventListener("change",readDay);
 
 $("form").addEventListener("submit",function(e){
   e.preventDefault();
   var v=readForm(),err=[];
-  if(!v.ep)err.push("episode");
   if(!v.sc)err.push("scene");
   if(v.su&&suToN(v.su)<0)err.push("setup (letters only, no I or O)");
   if($("use").value==="__custom"&&!v.use)err.push("custom usage");
@@ -736,32 +764,35 @@ function stampCurrent(){
   trim();save();
 }
 function payload(v,t,c,pv){
-  /* hdri: only the slate ID, e.g. 3-42A, plus the HDRI number (the take) when a setup has several: 3-42A-2.
-     The smallest QR there is (21x21), so fisheye shots can still read it. Day and unit come from the day log. */
-  if(v.use==="hdri"&&!c&&!pv&&!(v.roll>1))return (v.ep+"-"+v.sc+v.su+(v.tk!=null?"-"+v.tk:"")).toUpperCase();
-  /* witness_cam: 15 digits, the smallest QR there is (21x21) with the strongest error correction, so 360 / fisheye cameras read it.
-     Falls back to the JSON QR when a value doesn't fit the fixed fields. */
-  if(v.use==="witness_cam"&&!c){var wd=witnessDigits(v,pv);if(wd)return wd}
+  /* small code (17 digits, 21x21): hdri and witness_cam always; set_ref while it has no note.
+     Corrections carry what the slate was, so they always use the full code. */
+  var small=v.use==="hdri"||v.use==="witness_cam"||(v.use==="set_ref"&&!v.note);
+  if(small&&!c){var sd=slateDigits(v,t,pv?1:v.reh?2:v.roll>1?3:0);if(sd)return sd}
   var p={app:"qrslate",v:1,episode:v.ep,scene:v.sc};
   if(v.use!=="scene_ref")p.setup=v.su;
   if(v.tk!=null)p.take=v.tk;
   p.usage=v.use;if(v.obj)p.object=v.obj;if(v.cam)p.camera=v.cam;
-  if(DAY.day)p.day=DAY.day;if(DAY.block)p.block=DAY.block;if(DAY.unit)p.unit=DAY.unit;
+  if(dayCode(DAY))p.day=dayCode(DAY);if(DAY.unit)p.unit=DAY.unit;   // day like B01D56
   p.id=slateId(v);p.time=t;
   if(v.note)p.note=v.note;
   if(c)p.correction={scope:c.scope,was:c.was};
   if(!c&&!pv&&v.roll>1)p.roll=v.roll;   // false start: this is roll N of the same take
+  if(!c&&!pv&&v.reh)p.rehearsal=true;
   if(pv)p.previous_clip=true;   // this clip is only a slate; it labels the clip before it
   return JSON.stringify(p);
 }
-/* witness digit code, 17 digits, fixed width, no separators (see docs/qr-format.md 1c):
-   DDD day · B block · N unit · EE episode · SSS scene · s scene letter · UU setup · TT take · R roll · F flag
-   unit: 0 none, 1 main, 2 second, 3 splinter, 4 vfx · flag: 0 normal, 1 previous-take slate, 2 rehearsal, 3-9 reserved */
-function witnessDigits(v,pv){
-  var day=+(DAY.day||0),blk=+(DAY.block||0),un=UNIT_DIGIT[DAY.unit]||0,
-      sm=/^(\d{1,3})([A-Z]?)$/.exec(v.sc||""),sl=sm&&sm[2]?L.indexOf(sm[2])+1:0,su=suToN(v.su||""),roll=pv?1:(v.roll||1);
-  if(day>999||blk>9||!/^\d{1,2}$/.test(v.ep||"")||!sm||(sm[2]&&sl<1)||sl>9||su<0||su>99||v.tk==null||v.tk<1||v.tk>99||roll>9)return null;
-  return pad(day,3)+blk+un+pad(+v.ep,2)+pad(+sm[1],3)+sl+pad(su,2)+pad(v.tk,2)+roll+(pv?1:v.reh?2:0);
+/* slate code, 17 digits, fixed width, no separators (see docs/qr-format.md 1c):
+   EE episode (00 none) · M scene marker · SSS scene · UU setup · TT take · YYDDD year + day of the year · N unit · F flag
+   M: 0 none 1 X 2 A 3 B 4 C 5 XA 6 XB 7 XC · UU: 00 none, 01-24 A-Z, 25 AA … 96 CZ · TT 00 = no take
+   N: 0 none 1 main 2 second 3 splinter 4 vfx 5 other
+   F: 0 normal · 1 previous-take slate (labels the clip before it) · 2 rehearsal · 3 false start (same take rolled again)
+   Returns null when a value doesn't fit; the full code is used then. */
+function slateDigits(v,t,f){
+  var m=/^(X?[ABC]?)(\d{1,3})$/.exec(v.sc||""),mk=m?MARKS.indexOf(m[1]):-1,su=suToN(v.su||""),tk=v.tk==null?0:v.tk,
+      d=/^(\d{4})-(\d\d)-(\d\d)/.exec(t||"");
+  if(!/^\d{0,2}$/.test(v.ep||"")||mk<0||su<0||su>SETUP_MAX||tk<0||tk>99||!d)return null;
+  var doy=Math.round((Date.UTC(+d[1],+d[2]-1,+d[3])-Date.UTC(+d[1],0,1))/864e5)+1;
+  return pad(+v.ep,2)+mk+pad(+m[2],3)+pad(su,2)+pad(tk,2)+d[1].slice(2)+pad(doy,3)+(UNIT_DIGIT[DAY.unit]||0)+(f||0);
 }
 function drawQR(text,corr){
   /* draw at the exact on-screen pixel size so every module is a whole number of pixels (crisp, never resampled) */
@@ -772,11 +803,11 @@ function drawQR(text,corr){
   if(typeof qrcode!=="function"){ctx.fillStyle="#f6f6f2";ctx.fillRect(0,0,W,W);ctx.fillStyle="#b00";ctx.font="28px sans-serif";ctx.fillText("QR library didn't load.",40,280);return}
   if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
   /* short codes use the QR's compact modes and the strongest error correction:
-     digits only (witness) numeric mode; hdri / sync (digits, capitals, "-", ".") alphanumeric mode */
+     digits only (slate code) numeric mode; sync (digits, capitals, "-", ".") alphanumeric mode */
   var num=/^\d{1,40}$/.test(text),short=num||/^[0-9A-Z.-]{1,20}$/.test(text);
   var q=qrcode(0,short?"H":"Q");q.addData(text,num?"Numeric":short?"Alphanumeric":"Byte");q.make();
   var band=0;                              // correction is shown by the orange screen border, not inside the QR
-  var inner=W-band*2,n=q.getModuleCount(),quiet=4,cell=Math.floor(inner/(n+quiet*2)),off=band+Math.floor((inner-cell*n)/2);
+  var inner=W-band*2,n=q.getModuleCount(),quiet=2,cell=Math.floor(inner/(n+quiet*2)),off=band+Math.floor((inner-cell*n)/2);
   ctx.fillStyle="#f6f6f2";ctx.fillRect(band,band,inner,inner);ctx.fillStyle="#000";
   for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))ctx.fillRect(off+k*cell,off+r*cell,cell,cell);
 }
@@ -798,13 +829,13 @@ function renderSlate(){
   $("bigTake").textContent=takeText;
   var rl=!c&&!pv&&v.roll>1,rh=!c&&!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
   $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
-  $("bigUse").innerHTML=esc(v.use.replace(/_/g," "))+(v.obj?' · <span class="obj">'+esc(v.obj)+'</span>':'');
+  $("bigUse").innerHTML=esc(useName(v.use).replace(/_/g," "))+(v.obj?' · <span class="obj">'+esc(v.obj)+'</span>':'');
   var sub=[];if(v.cam)sub.push('<span class="cam">'+esc(v.cam)+'</span>');
   $("bigSub").innerHTML=sub.join(" · ");$("bigSub").hidden=!sub.length;
-  $("noteBtn").hidden=!!c||!!pv||v.use==="hdri";
+  $("noteBtn").hidden=!!c||!!pv||v.use==="hdri"||v.use==="witness_cam";
   $("noteTxt").textContent=v.note?v.note:"+ note";$("noteBtn").classList.toggle("empty",!v.note);
   $("noteBtn").setAttribute("aria-label",v.note?"Edit note: "+v.note:"Add a note");
-  $("stamp").textContent=(t?"slated "+t.slice(0,10)+" "+t.slice(11,19):"")+(dayInfoText(DAY)?" · "+dayInfoText(DAY):"");
+  $("stamp").textContent=dayInfoText(DAY);$("stamp").hidden=!dayInfoText(DAY);
   var sr=S.use==="scene_ref",wit=S.use==="witness_cam";
   $("suDown").disabled=!!pv||(!c&&(sr||!S.su));$("suUp").disabled=!!pv||(!c&&sr);
   $("tkDown").disabled=pv?pv.n<=1:(!c&&(wit?(S.tk==null||S.tk<=1):S.tk==null));
@@ -835,7 +866,7 @@ function syncFrame(force){cancelAnimationFrame(syncRAF);if(!SYNC||$("slate").hid
   syncRAF=requestAnimationFrame(function(){syncFrame(false)})}
 $("syncBtn").onclick=function(){if(shown||prev)return;SYNC=true;renderSlate()};
 $("syncDone").onclick=function(){SYNC=false;cancelAnimationFrame(syncRAF);renderSlate()};
-/* Rehearsal: the next clip on this take is a rehearsal (witness QR flag 2). Counted on the take in the day log; ends on the next step. */
+/* Rehearsal: the next clip on this take is a rehearsal (slate code flag 2). Counted on the take in the day log; ends on the next step. */
 $("rehBtn").onclick=function(){
   if(S.tk==null||shown||prev)return;
   S.reh=!S.reh;
@@ -860,6 +891,7 @@ $("tkDown").onclick=function(){if(prev){if(prev.n>1){prev.n--;prev.t=isoLocal(ne
   function(){S.tk=S.tk<=1?null:S.tk-1})};
 $("editBtn").onclick=function(){shown=null;fixing=null;noteEdit=false;goForm()};
 $("noteBtn").onclick=function(){shown=null;fixing=null;noteEdit=true;fillForm(S,S.tk);show("form");
+  if(!S.note){$("addNote").onclick();return}   // a new note shows the warning first
   var n=$("note");try{n.focus();n.setSelectionRange(n.value.length,n.value.length)}catch(e){}};
 
 /* sideways view: turns only the slate screen, not the phone */
@@ -871,6 +903,11 @@ $("rotBtn").onclick=function(){ROT=!ROT;store.set("rot",ROT);applyRot();renderSl
 window.addEventListener("resize",function(){sizeVars();if(!$("slate").hidden)renderSlate()});sizeVars();applyRot();
 
 /* clock */
+/* setup dropdown: none, A … Z, AA … CZ (the slate code holds 2 digits: 00 none, 01-96) */
+function setupOptions(cur){var el=$("su"),h='<option value="">—</option>';
+  for(var i=1;i<=SETUP_MAX;i++)h+="<option>"+nToSu(i)+"</option>";
+  if(cur&&!(suToN(cur)>=1&&suToN(cur)<=SETUP_MAX))h+="<option>"+esc(cur)+"</option>";   // an older slate past CZ stays selectable
+  el.innerHTML=h}
 var D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 function tick(){var d=new Date();$("cDate").textContent=D[d.getDay()]+" "+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());$("cTime").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
 setInterval(function(){if(!$("slate").hidden)tick()},1000);
