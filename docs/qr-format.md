@@ -18,14 +18,14 @@ The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetector
 |---|---|---|---|
 | `app` | `"qrslate"` | yes | Marks this QR as ours. Ignore QR codes without it. |
 | `v` | `1` | yes | Format version. |
-| `episode` | string | yes | e.g. `"3"`. May be `""` since 0.12 (episode is optional). |
-| `scene` | string | yes | e.g. `"21"`. Since 0.12 it may start with a scene marker: `X` (second unit), `A`/`B`/`C` (a connected scene) or `XA`/`XB`/`XC`, e.g. `"A38"`. |
+| `episode` | string | yes | e.g. `"3"`. May be `""` since 1.0 (episode is optional). |
+| `scene` | string | yes | e.g. `"21"`. Since 1.0 it may start with a scene marker: `X` (second unit), `A`/`B`/`C` (a connected scene) or `XA`/`XB`/`XC`, e.g. `"A38"`. |
 | `setup` | string | no | `""`, `"A"` … `"Z"`, `"AA"` … Movie alphabet: no `I`, no `O`. Omitted for `scene_ref`. |
 | `take` | integer | no | `witness_cam` counts takes from 1. For every other usage the take is optional: **no `take` = one slate for the whole folder/setup**. Also omitted on a whole-slate correction. |
-| `usage` | string | yes | `set_ref`, `hdri`, `photogrammetry`, `witness_cam`, or a custom value. Lower-case, `a-z0-9_`. (`scene_ref` left the app in 0.12; old slates may still carry it.) |
+| `usage` | string | yes | `set_ref`, `hdri`, `photogrammetry`, `witness_cam`, or a custom value. Lower-case, `a-z0-9_`. (`scene_ref` left the app in 1.0; old slates may still carry it.) |
 | `object` | string | no | Only with `photogrammetry`: the scanned object, e.g. `hero_chair`. |
-| `camera` | string | no | Camera name. The form no longer asks for it since 0.12; older slates may carry it. |
-| `day` | string | no | Shooting day as one code since 0.12: `B01D56` = block 1, day 56. Either part may be missing (`D56`, `B02`). 0.12 test builds wrote a plain number and a separate `block`; before that free text like `D12_B3`. |
+| `camera` | string | no | Camera name. The form no longer asks for it since 1.0; older slates may carry it. |
+| `day` | string | no | Shooting day as one code since 1.0: `B01D56` = block 1, day 56. Either part may be missing (`D56`, `B02`). 1.0 test builds wrote a plain number and a separate `block`; before that free text like `D12_B3`. |
 | `unit` | string | no | `main`, `second`, `splinter`, `vfx`, `other` or a custom value. |
 | `id` | string | yes | Readable slate ID: `episode_scene+setup`, e.g. `3_21B`; without an episode just `A38A`. |
 | `time` | string | yes | ISO 8601 local time with offset when the slate was shown, e.g. `2026-09-29T11:42:10+02:00`. |
@@ -43,7 +43,7 @@ Example:
 
 ### 1b. Short hdri QR (until 0.11)
 
-`3-21B` / `3-21B-2` (`episode-scene+setup[-number]`). Since 0.12 hdri slates use the slate code (1c).
+`3-21B` / `3-21B-2` (`episode-scene+setup[-number]`). Since 1.0 hdri slates use the slate code (1c).
 Readers should still accept these, and the 0.9.1 form `QS1|3_21B|<take>|hdri|<yymmddhhmmss>`.
 
 ### 1c. Slate code (17 digits)
@@ -74,7 +74,7 @@ The scene marker is part of the scene: `A38` is the scene the sorter files as `1
 - If a value doesn't fit (episode with letters or over 99, a scene in another shape, setup past CZ,
   take over 99), that slate shows the JSON QR instead.
 - Older digit codes are **witness_cam only** and readers should still accept them:
-  0.12 test builds wrote `DDD B N EE SSS s UU TT R F` (17 digits, starts with the day) and 0.11 wrote 15 digits
+  1.0 test builds wrote `DDD B N EE SSS s UU TT R F` (17 digits, starts with the day) and 0.11 wrote 15 digits
   (`DDD EE SSS s UU TT R F`); 0.10 had `3-21B-T4` / `3-21B-T4R2` / `3-21B-T4P` codes.
   Tell them apart by the QR Slate version of the day, or by the date field: a slate code always has a valid
   `YYDDD` at digits 11–15 close to the clip date.
@@ -129,9 +129,9 @@ A correction slate says: *everything that was slated as `was` is really what thi
 - The correction slate itself is not a take. The sorter puts its files in `_SLATES`.
 - Priority when slates disagree: **correction slate (shot later) > tail slate > head slate**.
 
-## 2. Day log (removed in 0.12)
+## 2. Day log (removed in 1.0)
 
-QR Slate 0.12 has no day log: everything the sorter reads is in the QR codes. Older versions shared one at wrap, described below, and readers may still get those files.
+QR Slate 1.0 has no day log: everything the sorter reads is in the QR codes. Older versions shared one at wrap, described below, and readers may still get those files.
 
 Shared at wrap as `daylog_<date>_wrap-<HHMM>.json` (and a readable `.txt`). This is the phone's final, corrected view of the day. Edits in Slates that don't need a new slate (camera name, notes) appear only here.
 

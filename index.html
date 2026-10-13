@@ -438,7 +438,7 @@ span.tk{cursor:default}
 <script>
 (function(){
 "use strict";
-var APP_VERSION="0.12.0";   // major.minor.patch; 1.0 after the first real shooting day
+var APP_VERSION="1.0.0";   // major.minor.patch
 var NOTE_MAX=300;
 var UNITS={main:"Main unit",second:"Second unit",splinter:"Splinter unit",vfx:"VFX unit",other:"Other unit"};
 var UNIT_DIGIT={main:1,second:2,splinter:3,vfx:4,other:5};   // slate code unit digit; 0 = none
@@ -502,7 +502,7 @@ H.forEach(function(s){if(s.day==null)s.day="";if(s.cam==null)s.cam="";if(s.note=
 });H=out;})();
 /* day info lives on the form and stays until changed: {day:"12", block:"3", unit:"main"} */
 var DAY=store.get("dayinfo",null);
-if(!DAY){ /* before 0.12 the day was one free-text field ("D12_B3") on a start page */
+if(!DAY){ /* before 1.0 the day was one free-text field ("D12_B3") on a start page */
   var old=store.get("day",null)||store.get("lastDay",null)||{},n=String(old.day||"").match(/\d+/g)||[];
   DAY={day:n[0]?String(+n[0]):"",block:n[1]?String(+n[1]):"",unit:old.unit||"main"};
 }
@@ -547,7 +547,7 @@ function fillForm(v,tk){
   var sm=/^(X?[ABC]?)(\d.*)$/.exec(v.sc||"");$("mk").value=sm?sm[1]:"";$("sc").value=sm?sm[2]:(v.sc||"");
   setupOptions(v.su||"");$("su").value=v.su||"";
   $("tk").value=tk!=null?tk:"";
-  var preset=PRESETS.indexOf(v.use)>=0&&v.use!=="scene_ref";   // scene_ref left the list in 0.12; old slates show as custom
+  var preset=PRESETS.indexOf(v.use)>=0&&v.use!=="scene_ref";   // scene_ref left the list in 1.0; old slates show as custom
   $("use").value=preset?v.use:"__custom";
   $("custom").value=preset?"":v.use;$("obj").value=v.obj||"";
   $("note").value=v.note||"";noteOpen=!!v.note;mkOpen=false;$("noteWarn").hidden=true;
@@ -561,7 +561,7 @@ function readForm(){
   return{ep:$("ep").value.trim(),sc:$("mk").value+$("sc").value.trim().toUpperCase(),
     su:use==="scene_ref"?"":$("su").value.trim().toUpperCase(),
     tk:t>0?t:takeDefault(use),use:use,obj:use==="photogrammetry"?clean($("obj").value):"",
-    cam:"",   // camera names left the form in 0.12
+    cam:"",   // camera names left the form in 1.0
     note:NOTE_USES.indexOf(use)<0&&PRESETS.indexOf(use)>=0?"":$("note").value.trim()};
 }
 function syncNotes(){

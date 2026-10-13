@@ -4,7 +4,7 @@ iPhone web app that shows a QR slate (block, day, unit, episode, scene, setup, t
 for VFX photo and witness-camera slating on set. Two screens: the form that makes the slate, and the slate
 that shows the QR.
 
-Version **0.12.0**. The data inside the QR codes is described in
+Version **1.0.0**. The data inside the QR codes is described in
 [`docs/qr-format.md`](docs/qr-format.md), so any sorting tool can read it.
 
 ## Install on the iPhone
