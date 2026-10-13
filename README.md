@@ -18,7 +18,7 @@ The app is a plain static site, so any HTTPS host works. With GitHub Pages:
 
 > GitHub Pages on a **private** repo needs a paid GitHub plan (Pro, Team or Enterprise). On a free plan, either make the repo public or host the files elsewhere (Netlify, Cloudflare Pages).
 
-**Versions:** `major.minor.patch`, shown on the form. Still `0.x` until the app has been used on a real shooting day; then `1.0`. Small fixes bump the patch (0.8.1 → 0.8.2), new features the minor (0.8 → 0.9).
+**Versions:** `major.minor.patch`, shown on the form. 1.0.0 was the big rework (one small slate code, new form and slate screen). Small fixes and additions bump the patch (1.0.0 → 1.0.1), bigger features the minor (1.0 → 1.1), and only a big rework the major.
 
 **Updating:** after changing any app file, set the same number in `APP_VERSION` (`index.html`) and `VERSION` (`sw.js`) so phones fetch the new version. The phone picks it up the next time the app is opened online.
 
