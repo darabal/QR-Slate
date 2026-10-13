@@ -409,7 +409,7 @@ span.tk{cursor:default}
   <button type="button" class="backcur prevdone" id="prevDone" hidden>Done</button>
   <div class="synctime" id="syncTime" hidden></div>
   <button type="button" class="backcur syncdone" id="syncDone" hidden>Done</button>
-  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">False start</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
+  <div class="prevrow" id="prevRow"><button type="button" class="ghost" id="rehBtn" aria-pressed="false">Rehearsal</button><button type="button" class="ghost" id="falseBtn">Roll again</button><button type="button" class="ghost" id="prevBtn">Slate previous take</button></div>
   <div class="deck">
     <button type="button" id="suDown"><span class="a">−</span><span class="l">Setup</span></button>
     <button type="button" id="suUp"><span class="a">+</span><span class="l">Setup</span></button>
@@ -780,7 +780,7 @@ function payload(v,t,c,pv){
   p.id=slateId(v);p.time=t;
   if(v.note)p.note=v.note;
   if(c)p.correction={scope:c.scope,was:c.was};
-  if(!c&&!pv&&v.roll>1)p.roll=v.roll;   // false start: this is roll N of the same take
+  if(!c&&!pv&&v.roll>1)p.roll=v.roll;   // roll again: this is roll N of the same take
   if(!c&&!pv&&v.reh)p.rehearsal=true;
   if(pv)p.previous_clip=true;   // this clip is only a slate; it labels the clip before it
   return JSON.stringify(p);
@@ -789,7 +789,7 @@ function payload(v,t,c,pv){
    EE episode (00 none) · M scene marker · SSS scene · UU setup · TT take · YYDDD year + day of the year · N unit · F flag
    M: 0 none 1 X 2 A 3 B 4 C 5 XA 6 XB 7 XC · UU: 00 none, 01-24 A-Z, 25 AA … 96 CZ · TT 00 = no take
    N: 0 none 1 main 2 second 3 splinter 4 vfx 5 other
-   F: 0 normal · 1 previous-take slate (labels the clip before it) · 2 rehearsal · 3 false start (same take rolled again)
+   F: 0 normal · 1 previous-take slate (labels the clip before it) · 2 rehearsal · 3 roll again (same take rolled again after a cut)
    Returns null when a value doesn't fit; the full code is used then. */
 function slateDigits(v,t,f){
   var m=/^(X?[ABC]?)(\d{1,3})$/.exec(v.sc||""),mk=m?MARKS.indexOf(m[1]):-1,su=suToN(v.su||""),tk=v.tk==null?0:v.tk,
@@ -855,7 +855,7 @@ $("falseBtn").onclick=function(){
   if(S.tk==null||shown||prev)return;
   var s=ensureSlate(S),k=takeOf(s,S.tk)||putTake(s,S.tk,isoLocal(new Date()));
   k.rolls=(k.rolls||1)+1;S.roll=k.rolls;S.t=isoLocal(new Date());save();renderSlate();
-  toast("False start. Same take, roll "+S.roll+".")};
+  toast("Roll again. Same take, roll "+S.roll+".")};
 $("prevBtn").onclick=function(){if(S.tk==null)return;shown=null;prev={n:S.tk,t:isoLocal(new Date())};renderSlate()};
 $("prevDone").onclick=function(){if(!prev)return;commitPrev();S.tk=prev.n+1;prev=null;stampCurrent();renderSlate()};
 /* Sync: the QR shows the phone's clock and changes once a second, exactly on the second, e.g. SYNC-142605.000 (14:26:05).

@@ -31,7 +31,7 @@ The sorter should use a robust QR decoder (e.g. ZXing / OpenCV's `QRCodeDetector
 | `time` | string | yes | ISO 8601 local time with offset when the slate was shown, e.g. `2026-09-29T11:42:10+02:00`. |
 | `note` | string | no | Slate note, max 300 characters. Only set_ref, photogrammetry and custom usages take a note. |
 | `correction` | object | no | Present only on a correction slate. See below. |
-| `roll` | integer | no | **False start:** the take was cut and rolled again. `roll: 2` (or 3…) = this is a re-roll of the same take; the last roll is the real take. Absent = roll 1. |
+| `roll` | integer | no | **Roll again** (was "False start" in the app): the take was cut and rolled again. `roll: 2` (or 3…) = this is a re-roll of the same take; the last roll is the real take. Absent = roll 1. |
 | `rehearsal` | `true` | no | The clip is a rehearsal of that take, not the take. |
 | `previous_clip` | `true` | no | **Slate-only clip:** the clip that contains this QR is only a slate. It labels the clip **before** it with this slate and take. See below. |
 
@@ -64,7 +64,7 @@ always a 21×21 QR (version 1, which holds exactly 17 digits).
 | 9–10 | `TT` take | `00` no take, `01`–`99` |
 | 11–15 | `YYDDD` date | year (2 digits) and day of the year `001`–`366`, phone date when the slate was shown |
 | 16 | `N` unit | `0` not set, `1` main, `2` second, `3` splinter, `4` vfx, `5` other |
-| 17 | `F` flag | `0` normal, `1` previous-take slate (see `previous_clip`), `2` rehearsal, `3` false start (same take rolled again), `4`–`9` reserved |
+| 17 | `F` flag | `0` normal, `1` previous-take slate (see `previous_clip`), `2` rehearsal, `3` roll again (the same take rolled again after a cut; this clip is the real take), `4`–`9` reserved |
 
 Example above: episode 3, scene A38, setup A, take 4, 13 Oct 2026 (day 286), main unit, normal → slate `3_A38A` take 4.
 The scene marker is part of the scene: `A38` is the scene the sorter files as `1038A_A` for episode 1, setup A.
