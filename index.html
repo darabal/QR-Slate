@@ -213,7 +213,10 @@ span.tk{cursor:default}
 .conflict .what i{color:var(--mute)}
 .conflict .act{font-size:16px;padding:12px 4px;letter-spacing:.04em;line-height:1.1}
 .stamp{font-family:var(--f-mono);font-size:15px;letter-spacing:.06em;color:var(--mute);font-variant-numeric:tabular-nums}
-#slate.is-prev{border:8px solid var(--prev);padding-inline:8px}
+/* previous take: no border (keeps the layout); the blue banner marks it, and Done takes the place of the 4 buttons */
+#slate.is-prev .deck{display:none}
+#slate.is-prev #prevDone{order:10;padding:22px 12px;margin-bottom:8px;font-size:24px}
+#slate.rot.is-prev #prevDone{grid-row:5;order:0}
 .prev-banner{background:var(--prev);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
 .prev-banner small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:12px}
 .backcur.prevdone{background:var(--prev)}
@@ -388,7 +391,7 @@ span.tk{cursor:default}
     <div class="head"><div class="r"><button class="ghost" id="slateHist" type="button" hidden>Slates</button><button class="ghost" id="syncBtn" type="button">Sync</button><button class="ghost" id="editBtn" type="button" aria-label="Back to the slate form">Slate</button></div></div>
   </div>
   <div class="corr-banner" id="corrBanner" hidden>CORRECTION<small id="corrText"></small></div>
-  <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it.</small></div>
+  <div class="prev-banner" id="prevBanner" hidden>PREVIOUS TAKE<small>Record this as its own short clip. It labels the clip before it, take shown below.</small></div>
   <div class="sync-banner" id="syncBanner" hidden>SYNC<small>Film this for a few seconds on every camera. The QR is the phone's clock.</small></div>
   <div class="qrwrap" id="qrWrap" title="Tap for a full-screen QR"><canvas id="qr" width="1000" height="1000" aria-label="QR code. Tap to fill the screen."></canvas><span class="bighint">Tap to go back</span></div>
   <div class="readout">
@@ -887,8 +890,8 @@ function landOn(su){
 }
 $("suUp").onclick=function(){if(prev)return;bump(function(){return S.use!=="scene_ref"},function(){landOn(nToSu(suToN(S.su)+1))})};
 $("suDown").onclick=function(){if(prev)return;bump(function(){return S.use!=="scene_ref"&&!!S.su},function(){landOn(nToSu(suToN(S.su)-1))})};
-$("tkUp").onclick=function(){if(prev){prev.n++;prev.t=isoLocal(new Date());renderSlate();return}bump(function(){return true},function(){S.tk=S.tk==null?1:S.tk+1})};
-$("tkDown").onclick=function(){if(prev){if(prev.n>1){prev.n--;prev.t=isoLocal(new Date());renderSlate()}return}bump(function(){return S.use==="witness_cam"?(S.tk!=null&&S.tk>1):S.tk!=null},
+$("tkUp").onclick=function(){if(prev)return;bump(function(){return true},function(){S.tk=S.tk==null?1:S.tk+1})};
+$("tkDown").onclick=function(){if(prev)return;bump(function(){return S.use==="witness_cam"?(S.tk!=null&&S.tk>1):S.tk!=null},
   function(){S.tk=S.tk<=1?null:S.tk-1})};
 $("editBtn").onclick=function(){shown=null;fixing=null;noteEdit=false;goForm()};
 $("noteBtn").onclick=function(){shown=null;fixing=null;noteEdit=true;fillForm(S,S.tk);show("form");
