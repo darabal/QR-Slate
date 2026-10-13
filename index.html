@@ -30,7 +30,7 @@
   --accent:#d9e021;       /* marker yellow, as on slate tape */
   --corr:#ff6a2b;         /* correction */
   --corr-dim:#5a3322;
-  --prev:#3aa0ff;          /* previous-take slate */
+  --prev:#ff4422;          /* previous-take slate: orange-red top bar */
   --danger:#ff5a5a;
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -213,8 +213,12 @@ span.tk{cursor:default}
 .conflict .what i{color:var(--mute)}
 .conflict .act{font-size:16px;padding:12px 4px;letter-spacing:.04em;line-height:1.1}
 .stamp{font-family:var(--f-mono);font-size:15px;letter-spacing:.06em;color:var(--mute);font-variant-numeric:tabular-nums}
-/* previous take: no border (keeps the layout); the blue banner marks it, and Done takes the place of the 4 buttons */
-#slate.is-prev .deck{display:none}
+/* previous take: no border (keeps the layout); the orange-red top bar marks it, and Done takes the place of the 4 buttons */
+#slate.is-prev .deck,#slate.is-prev .prev-banner{display:none!important}
+#slate.is-prev .topbar{background:var(--prev);color:#111;border-radius:0 0 10px 10px;padding:6px 10px 8px}
+#slate.is-prev:not(.rot) .topbar{margin:calc(-1 * env(safe-area-inset-top,0px)) -14px 0;padding:calc(6px + env(safe-area-inset-top,0px)) 14px 8px}
+#slate.is-prev .topbar .ghost{color:#111;border-color:rgba(0,0,0,.4)}
+#slate.is-prev .clock .d{color:#111;opacity:.75}
 #slate.is-prev #prevDone{order:10;padding:22px 12px;margin-bottom:8px;font-size:24px}
 #slate.rot.is-prev #prevDone{grid-row:5;order:0}
 .prev-banner{background:var(--prev);color:#111;text-align:center;font-family:var(--f-display);font-weight:700;letter-spacing:.14em;font-size:18px;padding:3px 8px;border-radius:4px}
