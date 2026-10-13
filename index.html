@@ -111,7 +111,7 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 /* the slate as it will read: plain text, not a field; about 10% bigger than the field values */
 .preview{font-family:var(--f-display);font-weight:700;font-size:29px;line-height:1;letter-spacing:.02em;text-transform:none;color:var(--ink);overflow-wrap:anywhere;min-width:0}
 .preview .ptk{color:var(--accent)}
-.mk{opacity:.5}   /* scene marker (X, A, XA…) reads dimmer than the scene number */
+#mk{color:var(--mute);border-color:#222725;background-color:#131615}   /* scene marker dropdown: dimmer than the fields around it */
 .err{color:var(--danger);font-size:14px;margin:0}
 .primary{width:100%;padding:18px;border:0;border-radius:8px;background:var(--accent);color:#111;font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.1em;text-transform:uppercase}
 .primary.corr{background:var(--corr)}
@@ -179,9 +179,9 @@ span.tk{cursor:default}
 
 /* ---------- SLATE ---------- */
 #slate{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-inline:14px;gap:6px;border:0 solid var(--corr);
-  --qr:min(calc(100vw - 28px),50vh); --id:min(28vw,14vh)}
+  --qr:min(calc(100vw - 28px),50vh); --id:min(22vw,12vh)}
 @media (max-height:720px){#slate{--qr:min(calc(100vw - 28px),47vh);--id:min(20vw,9.5vh)} #slate.has-take{--id:min(17vw,9vh)}}
-#slate.has-take{--id:min(24vw,13vh)}
+#slate.has-take{--id:min(18vw,11vh)}
 #slate.is-corr{border-width:8px;padding-inline:8px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .topbar .l{display:flex;align-items:center;gap:10px;min-width:0}
@@ -466,9 +466,6 @@ var noteOpen=false;
 function takeDefault(use){return use==="witness_cam"?1:null}
 
 /* A slate value: {ep,sc,su,tk,use,obj,cam,note}; tk may be null. (Take notes were dropped in v6; old ones are still shown in the day log.) */
-/* slate ID as HTML with the scene marker dimmed: 3_<span class="mk">XA</span>38B */
-function idHtml(v){var m=/^(X?[ABC]?)(\d.*)$/.exec(v.sc||"");if(!m||!m[1])return esc(slateId(v));
-  return esc(v.ep?v.ep+"_":"")+'<span class="mk">'+m[1]+'</span>'+esc(m[2]+(v.use==="scene_ref"?"":v.su))}
 function slateId(v){return (v.ep?v.ep+"_":"")+v.sc+(v.use==="scene_ref"?"":v.su)}   // episode is optional
 /* shooting day as one code: B01D56 (block 01, day 56); either part may be missing */
 function dayCode(d){return (d.block?"B"+pad(+d.block,2):"")+(d.day?"D"+pad(+d.day,2):"")}
@@ -581,7 +578,7 @@ function syncForm(){
   $("su").disabled=sr;
   $("form").classList.toggle("is-corr",!!fixing);
   $("fixing").hidden=!fixing;
-  $("formPreview").innerHTML=(v.sc?idHtml(v):esc((v.ep?v.ep+"_":"")+"?"+v.su))+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'');
+  $("formPreview").innerHTML=esc((v.ep?v.ep+"_":"")+(v.sc||"?")+v.su)+(whole?' <span class="ptk">ALL</span>':v.tk!=null?' <span class="ptk">T'+v.tk+'</span>':'');
   $("conflict").hidden=true;$("make").hidden=false;
   var ne=noteEdit&&!fixing&&keyOf(v)===keyOf(S);
   $("noteBar").hidden=!(noteEdit&&!fixing);$("noteBarWhat").textContent=slateId(S)+" · "+useLabel(S);
@@ -843,7 +840,7 @@ function renderSlate(){
   $("takeCell").hidden=!takeText;$("takeDiv").hidden=!takeText;
   $("corrBanner").hidden=!c;$("backCur").hidden=!c;
   if(c)$("corrText").textContent="WAS "+c.wasLabel;
-  $("bigId").innerHTML=idHtml(v);
+  $("bigId").textContent=slateId(v);
   $("bigTake").textContent=takeText;
   var rl=!c&&!pv&&v.roll>1,rh=!c&&!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
   $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
