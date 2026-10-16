@@ -4,7 +4,7 @@ iPhone web app that shows a QR slate (block, day, unit, episode, scene, setup, t
 for VFX photo and witness-camera slating on set. Two screens: the form that makes the slate, and the slate
 that shows the QR.
 
-Version **1.0.0**. The data inside the QR codes is described in
+Version **1.0.1**. The data inside the QR codes is described in
 [`docs/qr-format.md`](docs/qr-format.md), so any sorting tool can read it.
 
 ## Install on the iPhone
@@ -36,6 +36,6 @@ The app is a plain static site, so any HTTPS host works. With GitHub Pages:
 - **Roll again:** the take was cut and rolls again on the same number. Tap **Roll again**: the slate stays on the same take and shows **ROLL 2** (flag 3); film it at the start of the new roll.
 - **Slate previous take:** if a take was shot without a slate, tap *Slate previous take* (it slates the current take), record a short clip of it, then **Done**, which moves on to the next take. The sorter applies it to the clip before (flag 1).
 - **Slate:** big QR across the top, big slate ID and usage, the shooting day (`B01D56 · Main unit`), a big clock with the date, and four buttons: setup −/+, take −/+. **Slate** goes back to the form. The note shows under the slate with a pencil (or **+ note**). The rotate button (top left) turns the slate sideways inside the app. Moving to a setup that already exists on the same shooting day goes back to it (its note and last take); only a name that doesn't exist yet makes a new slate, with an empty note and the take reset. Making a slate in the form with an existing name and a different note asks: **Go to existing**, **Overwrite** or **Cancel**.
-- **Slates list:** hidden for now while it is reworked. Every slate is still saved on the phone.
+- **No slate list:** the app keeps only the current slate and the shooting day. Since 1.0.1 there is no list of past slates and no correction slates; the slate data from older versions is cleared from the phone.
 
 codes carry everything the sorter reads.
