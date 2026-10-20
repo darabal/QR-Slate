@@ -131,7 +131,7 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:6px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .topbar .l{display:flex;align-items:center;gap:10px;min-width:0}
 .clock{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.clock .d{font-size:15px;color:var(--mute);letter-spacing:.02em}
+.clock .d{font-size:15px;color:var(--mute);letter-spacing:.02em;white-space:nowrap}
 .clock .t{font-size:32px;font-weight:600;line-height:1.05}
 .qrwrap{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center}
 #qr{border-radius:6px;display:block;image-rendering:pixelated;width:var(--qr);height:var(--qr);max-width:100%}
@@ -142,9 +142,9 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .bigid,.bigtake{font-family:var(--f-display);font-weight:700;font-size:var(--id);line-height:1;letter-spacing:.01em;font-variant-numeric:tabular-nums;white-space:nowrap;padding-bottom:.06em}
 .bigtake{color:var(--accent)}
 .divider{width:2px;align-self:stretch;background:var(--line);margin-block:14px 6px}
-.usage{font-family:var(--f-display);font-size:calc(var(--id) * .5);line-height:1;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);overflow-wrap:normal;margin-top:2px}
+.usage{font-family:var(--f-display);font-size:calc(var(--id) * .5);line-height:1;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);max-width:100%;margin-top:2px}
+.usage .ul{display:block;white-space:nowrap}   /* usage, then the scanned object below it; each line shrinks to fit (fitId) */
 .usage .obj{color:var(--ink)}
-.usage .nw{white-space:nowrap}
 .sub{font-family:var(--f-mono);font-size:13px;color:var(--mute);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sub .cam{color:var(--ink)}
 .notebtn{display:inline-flex;align-items:center;gap:8px;max-width:100%;min-width:0;background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-family:var(--f-mono);font-size:13px;color:var(--ink)}
@@ -193,6 +193,9 @@ legend{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transf
 .cell .k{position:relative}
 .roll{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:6px;white-space:nowrap;line-height:1.2;background:var(--accent);color:#111;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em;padding:2px 6px;border-radius:4px}
 .prevrow{gap:6px}
+.prevrow .ghost{white-space:nowrap}
+@media (max-width:360px){.prevrow .ghost{font-size:10px;padding:5px 6px;letter-spacing:.03em}
+  .clock .d{font-size:12px}.clock .t{font-size:23px}.topbar .head .r .ghost{padding-inline:8px}}   /* small phones: the three buttons stay on one line */
 #slate:not([hidden]) ~ .toast{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))}
 .backcur{width:100%;padding:12px;border-radius:10px;border:0;background:var(--corr);color:#111;font-family:var(--f-display);font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .deck{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding-bottom:8px}
@@ -540,7 +543,7 @@ function renderSlate(){
   $("bigTake").textContent=takeText;
   var rl=!pv&&v.roll>1,rh=!pv&&!!v.reh;$("bigRoll").hidden=!rl&&!rh;
   $("bigRoll").textContent=[rh?"REH":"",rl?"ROLL "+v.roll:""].filter(Boolean).join(" ");
-  $("bigUse").innerHTML=esc(useName(v.use).replace(/_/g," "))+(v.obj?' <span class="nw">· <span class="obj">'+esc(v.obj)+'</span></span>':'');
+  $("bigUse").innerHTML='<span class="ul">'+esc(useName(v.use).replace(/_/g," "))+'</span>'+(v.obj?'<span class="ul obj">'+esc(v.obj)+'</span>':'');
   var sub=[];if(v.cam)sub.push('<span class="cam">'+esc(v.cam)+'</span>');
   $("bigSub").innerHTML=sub.join(" · ");$("bigSub").hidden=!sub.length;
   $("noteBtn").hidden=v.use==="hdri"||v.use==="witness_cam";
@@ -552,7 +555,7 @@ function renderSlate(){
   var pg=S.use==="photogrammetry";$("tkUp").disabled=pg;
   $("tkDown").disabled=pv?pv.n<=1:(pg||(wit?(S.tk==null||S.tk<=1):S.tk==null));
   $("slate").classList.toggle("is-sync",!!SYNC);$("syncBanner").hidden=$("syncTime").hidden=$("syncDone").hidden=!SYNC;
-  fitId();
+  fitId();fitQR();
   if(SYNC)syncFrame(true);else drawQR(payload(v,t,!!pv));tick();
 }
 /* a long slate (12_XA38CZ · 99) shrinks to fit the width instead of running off the screen */
@@ -560,9 +563,14 @@ function fitId(){var a=$("bigId"),b=$("bigTake"),row=a.parentNode.parentNode;a.s
   var avail=row.parentNode.clientWidth,g=parseFloat(getComputedStyle(row).columnGap)||0,
       w=a.scrollWidth+($("takeCell").hidden?0:b.scrollWidth+$("takeDiv").offsetWidth+g*2);
   if(avail>0&&w>avail){var f=parseFloat(getComputedStyle(a).fontSize)*(avail-g*2)/(w-g*2)*.96;a.style.fontSize=b.style.fontSize=f+"px"}
-  var u=$("bigUse");u.style.fontSize="";   // a long word (photogrammetry) shrinks to fit rather than breaking mid-word
-  if(u.clientWidth>0&&u.scrollWidth>u.clientWidth)u.style.fontSize=parseFloat(getComputedStyle(u).fontSize)*u.clientWidth/u.scrollWidth*.97+"px"}
-try{document.fonts.ready.then(function(){if(!$("slate").hidden)fitId()})}catch(e){}
+  var u=$("bigUse"),uw=u.parentNode.clientWidth;   // usage and scanned object: each line shrinks to fit the width, never wraps
+  [].forEach.call(u.children,function(l){l.style.fontSize="";   // text width is not quite proportional to size, so measure again
+    for(var i=0;i<4&&uw>0&&l.scrollWidth>uw;i++)l.style.fontSize=parseFloat(getComputedStyle(l).fontSize)*uw/l.scrollWidth*.97+"px"})}
+/* on a short screen the QR takes only the height left over by the rest of the slate, so nothing overlaps */
+function fitQR(){var q=$("qr"),w=$("qrWrap");q.style.width=q.style.height="";
+  var h=w.clientHeight-($("slate").classList.contains("bigqr")?$("qrWrap").lastElementChild.offsetHeight+6:0),cur=q.getBoundingClientRect().width;
+  if(h>0&&h<cur)q.style.width=q.style.height=Math.floor(h)+"px"}
+try{document.fonts.ready.then(function(){if(!$("slate").hidden)renderSlate()})}catch(e){}
 /* "Slate previous take": a slate-only clip that labels the clip before it. Take -/+ pick the missed take; Done moves on. */
 var prev=null;
 $("falseBtn").onclick=function(){
