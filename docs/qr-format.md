@@ -8,7 +8,7 @@ A QR code. Two formats exist:
 
 - **Slate code** (17 digits, see 1c): hdri and witness_cam always, set_ref while it has no note.
   The smallest QR there is, so fisheye / 360 lenses and far cameras can still read it.
-- **JSON** (photogrammetry, custom usages, set_ref with a note, every correction slate, and any slate whose
+- **JSON** (photogrammetry, custom usages, set_ref with a note, correction slates from versions before 1.0.1, and any slate whose
   values don't fit the slate code): one JSON object, UTF-8, error correction level Q, described below.
 - The **sync clock** (see 1d) is its own short code.
 
@@ -107,7 +107,9 @@ Used when a take was shot without a slate. The operator records a separate short
 
 In the slate code it is flag `1`. Up to 0.11 the day log marked such takes with `"slated_after": true`.
 
-### Correction slates
+### Correction slates (up to 1.0.0)
+
+QR Slate 1.0.1 no longer makes correction slates (they came from the slate list, which was removed). Readers may still find them in footage slated with older versions.
 
 A correction slate says: *everything that was slated as `was` is really what this slate says.*
 
